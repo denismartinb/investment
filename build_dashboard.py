@@ -8,7 +8,7 @@ from pathlib import Path
 
 
 INPUT_CSV = Path("/Users/denismartinb/Downloads/investment_dataset - Data.csv")
-OUTPUT_HTML = Path("/Users/denismartinb/Documents/New project/investment_dashboard.html")
+OUTPUT_HTML = Path("/Users/denismartinb/Documents/Investment/investment_dashboard.html")
 
 
 def parse_decimal(value: str) -> float:
@@ -624,6 +624,8 @@ def render_html() -> str:
     .hero-theme-row {{
       display: flex;
       justify-content: flex-end;
+      gap: 10px;
+      flex-wrap: wrap;
     }}
 
     .control-card {{
@@ -1151,6 +1153,14 @@ def render_html() -> str:
       display: block;
     }}
 
+    #performanceRoiChart,
+    #performanceProfitChart,
+    #performanceInvestedShareChart {{
+      width: 100%;
+      height: 118px;
+      display: block;
+    }}
+
     .chart-tooltip {{
       position: absolute;
       min-width: 168px;
@@ -1358,6 +1368,22 @@ def render_html() -> str:
       flex-wrap: wrap;
     }}
 
+    .allocation-trend-head .selector.compact {{
+      gap: 4px;
+    }}
+
+    .allocation-trend-head .selector.compact label {{
+      font-size: 10px;
+      letter-spacing: 0.05em;
+    }}
+
+    .allocation-trend-head .selector.compact select {{
+      padding: 7px 10px;
+      border-radius: 11px;
+      font-size: 11px;
+      min-width: 124px;
+    }}
+
     .allocation-trend-note {{
       margin: 0;
       color: var(--muted);
@@ -1372,6 +1398,7 @@ def render_html() -> str:
       background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.015));
       border: 1px solid rgba(255,255,255,0.06);
       padding: 14px 14px 10px;
+      touch-action: manipulation;
     }}
 
     #allocationTrendChart {{
@@ -1572,7 +1599,10 @@ def render_html() -> str:
     }}
 
     .table-shell {{
-      overflow: hidden;
+      overflow-x: auto;
+      overflow-y: hidden;
+      -webkit-overflow-scrolling: touch;
+      touch-action: pan-x;
       border-radius: 20px;
       border: 1px solid rgba(255,255,255,0.06);
       background: rgba(255,255,255,0.03);
@@ -1836,13 +1866,94 @@ def render_html() -> str:
 
     .contribution-chart-wrap {{
       position: relative;
-      min-height: 332px;
+      min-height: 0;
     }}
 
-    #contributionPlanChart {{
+    .contribution-plan-chart {{
       width: 100%;
-      height: 332px;
-      display: block;
+      display: grid;
+      gap: 12px;
+    }}
+
+    .contribution-plan-scale {{
+      display: grid;
+      grid-template-columns: 190px minmax(0, 1fr) 86px;
+      align-items: end;
+      gap: 14px;
+      color: var(--muted);
+      font-size: 11px;
+    }}
+
+    .contribution-plan-scale-track {{
+      position: relative;
+      height: 16px;
+    }}
+
+    .contribution-plan-scale-track::before {{
+      content: "";
+      position: absolute;
+      inset: 7px 0 auto;
+      height: 1px;
+      background: rgba(255,255,255,0.08);
+    }}
+
+    .contribution-plan-scale-track span {{
+      position: absolute;
+      top: 0;
+      transform: translateX(-50%);
+      white-space: nowrap;
+    }}
+
+    .contribution-plan-scale-track span:first-child {{
+      left: 0;
+      transform: none;
+    }}
+
+    .contribution-plan-scale-track span:last-child {{
+      right: 0;
+      left: auto;
+      transform: none;
+    }}
+
+    .contribution-plan-row {{
+      display: grid;
+      grid-template-columns: 190px minmax(0, 1fr) 86px;
+      gap: 14px;
+      align-items: center;
+    }}
+
+    .contribution-plan-name {{
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.3;
+      min-width: 0;
+    }}
+
+    .contribution-plan-bar {{
+      min-width: 0;
+    }}
+
+    .contribution-plan-track {{
+      position: relative;
+      height: 14px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.08);
+      overflow: hidden;
+    }}
+
+    .contribution-plan-fill {{
+      height: 100%;
+      border-radius: inherit;
+      min-width: 8px;
+    }}
+
+    .contribution-plan-value {{
+      text-align: right;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text);
+      white-space: nowrap;
     }}
 
     .contribution-summary-grid {{
@@ -2042,6 +2153,7 @@ def render_html() -> str:
 
     table {{
       width: 100%;
+      min-width: 820px;
       border-collapse: collapse;
     }}
 
@@ -2129,7 +2241,53 @@ def render_html() -> str:
       }}
 
       .hero {{
+        position: relative;
         padding: 24px;
+        padding-top: 86px;
+      }}
+
+      .hero-eyebrow,
+      .hero-highlights {{
+        display: none;
+      }}
+
+      .hero-theme-row {{
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        justify-content: flex-end;
+        z-index: 3;
+      }}
+
+      .panel-head {{
+        flex-direction: column;
+        align-items: stretch;
+      }}
+
+      .panel-actions {{
+        width: 100%;
+        min-width: 0;
+        justify-items: stretch;
+      }}
+
+      #chartModeToggle {{
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        width: 100%;
+      }}
+
+      #allocationChartToggle {{
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        width: 100%;
+      }}
+
+      #chartModeToggle button,
+      #allocationChartToggle button {{
+        width: 100%;
+        min-width: 0;
+        padding: 8px 6px;
+        font-size: 11px;
       }}
 
       .kpi-grid,
@@ -2140,14 +2298,43 @@ def render_html() -> str:
         grid-template-columns: 1fr;
       }}
 
-      .type-row,
-      .position-row {{
+      .type-row {{
         grid-template-columns: 1fr;
       }}
 
       .value-block,
       .share {{
         text-align: left;
+      }}
+
+      .position-row {{
+        grid-template-columns: minmax(0, 1fr) auto auto;
+        grid-template-areas:
+          "main value share";
+        align-items: start;
+        gap: 10px 10px;
+      }}
+
+      .position-main {{
+        grid-area: main;
+      }}
+
+      .position-main .bar-track {{
+        width: min(50%, 180px);
+        margin-top: 8px !important;
+      }}
+
+      .value-block {{
+        grid-area: value;
+        justify-items: end;
+        align-self: start;
+      }}
+
+      .share {{
+        grid-area: share;
+        justify-self: end;
+        align-self: start;
+        justify-items: end;
       }}
 
       .donut {{
@@ -2161,6 +2348,38 @@ def render_html() -> str:
         flex-direction: column;
       }}
 
+      .contribution-plan-scale {{
+        grid-template-columns: 1fr 76px;
+      }}
+
+      .contribution-plan-scale > span:first-child {{
+        display: none;
+      }}
+
+      .contribution-plan-scale-track {{
+        grid-column: 1 / -1;
+      }}
+
+      .contribution-plan-row {{
+        grid-template-columns: minmax(0, 1fr) 76px;
+        grid-template-areas:
+          "name value"
+          "bar bar";
+        gap: 8px 10px;
+      }}
+
+      .contribution-plan-name {{
+        grid-area: name;
+      }}
+
+      .contribution-plan-bar {{
+        grid-area: bar;
+      }}
+
+      .contribution-plan-value {{
+        grid-area: value;
+      }}
+
       .modal-grid {{
         grid-template-columns: 1fr;
       }}
@@ -2169,7 +2388,7 @@ def render_html() -> str:
       th:nth-child(5),
       td:nth-child(4),
       td:nth-child(5) {{
-        display: none;
+        display: table-cell;
       }}
     }}
 
@@ -2208,6 +2427,10 @@ def render_html() -> str:
         </div>
         <div class="hero-side">
           <div class="hero-theme-row">
+            <button class="theme-toggle" id="privacyToggleButton" type="button" aria-pressed="false" title="Ocultar cifras sensibles">
+              <span class="theme-icon" id="privacyToggleIcon">👁</span>
+              <span class="theme-label" id="privacyToggleLabel">Ocultar cifras</span>
+            </button>
             <button class="theme-toggle" id="themeToggleButton" type="button" aria-pressed="false" title="Cambiar tema">
               <span class="theme-icon" id="themeToggleIcon">☾</span>
               <span class="theme-label" id="themeToggleLabel">Modo oscuro</span>
@@ -2417,7 +2640,7 @@ def render_html() -> str:
             </div>
             <div class="performance-legend" id="contributionLegend"></div>
             <div class="contribution-chart-wrap">
-              <svg id="contributionPlanChart" viewBox="0 0 960 332" preserveAspectRatio="none" aria-label="Plan mensual de aportaciones por activo"></svg>
+              <div class="contribution-plan-chart" id="contributionPlanChart" aria-label="Plan mensual de aportaciones por activo"></div>
               <div class="chart-tooltip" id="contributionTooltip"></div>
             </div>
             <div class="contribution-split">
@@ -2546,6 +2769,7 @@ def render_html() -> str:
       allocationChartMode: "treemap",
       performanceRangeMonths: 36,
       chartMode: "netWorth",
+      hideSensitiveValues: false,
       selectedTypes: null,
       selectedAssets: null,
       performanceSelectedAssets: null,
@@ -2578,6 +2802,12 @@ def render_html() -> str:
       return value >= 0 ? `+${{formatted}}` : `-${{formatted}}`;
     }};
 
+    function maskSensitiveText(text) {{
+      return String(text || "")
+        .replace(/[+-]?\d[\d.,]*/g, "••••")
+        .replace(/[€%]/g, "");
+    }}
+
     function applyTheme(theme) {{
       const normalizedTheme = theme === "light" ? "light" : "dark";
       document.documentElement.dataset.theme = normalizedTheme;
@@ -2594,6 +2824,22 @@ def render_html() -> str:
       button.setAttribute("title", isLight ? "Cambiar a modo oscuro" : "Cambiar a modo claro");
       icon.textContent = isLight ? "☀" : "☾";
       label.textContent = isLight ? "Modo claro" : "Modo oscuro";
+    }}
+
+    function applyPrivacyPreference(hidden) {{
+      state.hideSensitiveValues = Boolean(hidden);
+      try {{
+        localStorage.setItem("investment-hide-sensitive", state.hideSensitiveValues ? "true" : "false");
+      }} catch (error) {{
+        console.warn("No se pudo guardar la preferencia de privacidad.", error);
+      }}
+      const button = document.getElementById("privacyToggleButton");
+      const icon = document.getElementById("privacyToggleIcon");
+      const label = document.getElementById("privacyToggleLabel");
+      button.setAttribute("aria-pressed", state.hideSensitiveValues ? "true" : "false");
+      button.setAttribute("title", state.hideSensitiveValues ? "Mostrar cifras sensibles" : "Ocultar cifras sensibles");
+      icon.textContent = "👁";
+      label.textContent = state.hideSensitiveValues ? "Mostrar cifras" : "Ocultar cifras";
     }}
 
     function applyPanelHeadingTheme() {{
@@ -2620,6 +2866,28 @@ def render_html() -> str:
           node.style.removeProperty("color");
           node.style.removeProperty("-webkit-text-fill-color");
           node.style.removeProperty("opacity");
+        }}
+      }});
+    }}
+
+    function applySensitiveVisibility() {{
+      if (!state.hideSensitiveValues) {{
+        return;
+      }}
+      document.querySelectorAll(".kpi-card .kpi-value").forEach((node) => {{
+        node.textContent = "••••••";
+      }});
+      document.querySelectorAll(".kpi-card .kpi-foot *").forEach((node) => {{
+        if (/\d|€|%/.test(node.textContent || "")) {{
+          node.textContent = maskSensitiveText(node.textContent);
+        }}
+      }});
+      document.querySelectorAll("#compareLeftMetrics .compare-kpi-value, #compareRightMetrics .compare-kpi-value").forEach((node) => {{
+        node.textContent = "••••••";
+      }});
+      document.querySelectorAll("#compareLeftMetrics .compare-kpi-note, #compareRightMetrics .compare-kpi-note").forEach((node) => {{
+        if (/\d|€|%/.test(node.textContent || "")) {{
+          node.textContent = maskSensitiveText(node.textContent);
         }}
       }});
     }}
@@ -3341,7 +3609,7 @@ def render_html() -> str:
 
     function renderContributionPlanBlock() {{
       const theme = getChartTheme();
-      const svg = document.getElementById("contributionPlanChart");
+      const chart = document.getElementById("contributionPlanChart");
       const legend = document.getElementById("contributionLegend");
       const summaryGrid = document.getElementById("contributionSummaryGrid");
       const bars = document.getElementById("contributionAssetBars");
@@ -3374,11 +3642,7 @@ def render_html() -> str:
         splitTotal.textContent = "-";
         splitBar.innerHTML = "";
         splitLegend.innerHTML = "";
-        svg.innerHTML = `
-          <text x="50%" y="50%" text-anchor="middle" fill="${{theme.empty}}" font-size="16">
-            Sin plan de aportaciones disponible
-          </text>
-        `;
+        chart.innerHTML = `<div class="muted">Sin plan de aportaciones disponible</div>`;
         return;
       }}
 
@@ -3474,53 +3738,29 @@ def render_html() -> str:
         </div>
       `;
 
-      const width = 960;
-      const height = 332;
-      const padding = {{ top: 18, right: 110, bottom: 18, left: 230 }};
-      const chartWidth = width - padding.left - padding.right;
-      const chartHeight = height - padding.top - padding.bottom;
-      const rowGap = plan.assets.length > 8 ? 10 : 14;
-      const rowHeight = Math.max((chartHeight - rowGap * (plan.assets.length - 1)) / Math.max(plan.assets.length, 1), 18);
       const maxMonthly = Math.max(...plan.assets.map((asset) => asset.monthlyAmount), 1);
-      const gridLines = [0, 0.25, 0.5, 0.75, 1].map((ratio) => {{
-        const x = padding.left + ratio * chartWidth;
-        const value = maxMonthly * ratio;
-        return `
-          <g>
-            <line x1="${{x.toFixed(2)}}" y1="${{padding.top}}" x2="${{x.toFixed(2)}}" y2="${{height - padding.bottom}}" stroke="${{theme.grid}}" stroke-dasharray="4 8"></line>
-            <text x="${{x.toFixed(2)}}" y="${{height - 4}}" text-anchor="middle" fill="${{theme.axis}}" font-size="11">${{formatCurrency(value)}}</text>
-          </g>
-        `;
-      }}).join("");
-
-      const barsMarkup = plan.assets.map((asset, index) => {{
-        const y = padding.top + index * (rowHeight + rowGap);
-        const fillWidth = (asset.monthlyAmount / maxMonthly) * chartWidth;
-        return `
-          <g>
-            <text x="${{(padding.left - 14).toFixed(2)}}" y="${{(y + rowHeight / 2 - 2).toFixed(2)}}" text-anchor="end" fill="${{theme.axisStrong}}" font-size="12" font-weight="700">${{asset.name}}</text>
-            <rect x="${{padding.left}}" y="${{y.toFixed(2)}}" width="${{chartWidth.toFixed(2)}}" height="${{rowHeight.toFixed(2)}}" rx="999" fill="${{theme.track}}"></rect>
-            <rect
-              x="${{padding.left}}"
-              y="${{y.toFixed(2)}}"
-              width="${{Math.max(fillWidth, 6).toFixed(2)}}"
-              height="${{rowHeight.toFixed(2)}}"
-              rx="999"
-              fill="${{typeColorMap.get(asset.type) || palette[0]}}"
+      chart.innerHTML = `
+        ${{plan.assets.map((asset) => {{
+          const fillWidth = Math.max((asset.monthlyAmount / maxMonthly) * 100, 1.4);
+          return `
+            <div
+              class="contribution-plan-row"
               data-contribution-asset="${{asset.name}}"
               data-contribution-type="${{asset.type || ""}}"
               data-contribution-month="Aportación mensual"
               data-contribution-amount="${{asset.monthlyAmount}}"
               data-contribution-total="${{asset.annualTotal}}"
-            ></rect>
-            <text x="${{(padding.left + fillWidth + 10).toFixed(2)}}" y="${{(y + rowHeight / 2 - 2).toFixed(2)}}" fill="${{theme.axisStrong}}" font-size="12" font-weight="700">${{formatCurrency(asset.monthlyAmount)}}</text>
-          </g>
-        `;
-      }}).join("");
-
-      svg.innerHTML = `
-        ${{gridLines}}
-        ${{barsMarkup}}
+            >
+              <div class="contribution-plan-name">${{asset.name}}</div>
+              <div class="contribution-plan-bar">
+                <div class="contribution-plan-track">
+                  <div class="contribution-plan-fill" style="width:${{fillWidth.toFixed(2)}}%; background:${{typeColorMap.get(asset.type) || palette[0]}};"></div>
+                </div>
+              </div>
+              <div class="contribution-plan-value">${{formatCurrency(asset.monthlyAmount)}}</div>
+            </div>
+          `;
+        }}).join("")}}
       `;
     }}
 
@@ -3751,6 +3991,7 @@ def render_html() -> str:
       return path;
     }}
 
+
     function renderMiniLineChart({{ svg, values, labels, rawDates, formatter, color, dataKey, showXAxis, minOverride = null, maxOverride = null, showZeroLine = true }}) {{
       const theme = getChartTheme();
       const width = 960;
@@ -3952,7 +4193,7 @@ def render_html() -> str:
       }}).join("");
 
       const xLabels = primaryPath
-        .filter((_, index) => index === 0 || index === primaryPath.length - 1 || index % Math.ceil(primaryPath.length / 5) === 0)
+        .filter((_, index) => index === 0 || index === primaryPath.length - 1 || index % Math.max(1, Math.ceil(primaryPath.length / 5)) === 0)
         .map((point, index) => `
           <text x="${{point.x.toFixed(2)}}" y="${{height - 10}}" text-anchor="${{index === 0 ? "start" : "middle"}}" fill="${{theme.axis}}" font-size="11">${{activeSeries[primaryPath.indexOf(point)].label}}</text>
         `)
@@ -3990,7 +4231,7 @@ def render_html() -> str:
         <polygon points="${{areaPoints}}" fill="url(#primaryFill)"></polygon>
         <polyline fill="none" stroke="${{theme.timelinePrimary}}" stroke-width="4.6" stroke-linecap="round" stroke-linejoin="round" points="${{makePoints(primaryPath)}}"></polyline>
         <polyline fill="none" stroke="${{theme.timelineContribution}}" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round" opacity="0.98" points="${{makePoints(contributionPath)}}"></polyline>
-        <polyline fill="none" stroke="${{theme.timelineDebt}}" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round" opacity="0.9" points="${{makePoints(debtPath)}}"></polyline>
+        <polyline fill="none" stroke="${{theme.timelineDebt}}" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round" opacity="0.92" points="${{makePoints(debtPath)}}"></polyline>
         ${{primaryPath.map((point, index) => `
           <g>
             <circle cx="${{point.x.toFixed(2)}}" cy="${{point.y.toFixed(2)}}" r="3.8" fill="${{theme.timelinePrimary}}"></circle>
@@ -4423,6 +4664,13 @@ def render_html() -> str:
       }});
     }}
 
+    function attachPrivacyToggle() {{
+      document.getElementById("privacyToggleButton").addEventListener("click", () => {{
+        applyPrivacyPreference(!state.hideSensitiveValues);
+        renderAll();
+      }});
+    }}
+
     function openTypeFilterModal() {{
       renderTypeFilterModal();
       document.getElementById("typeFilterModal").classList.add("is-open");
@@ -4599,12 +4847,11 @@ def render_html() -> str:
       const shell = svg.parentElement;
       const tooltip = document.getElementById("allocationTrendTooltip");
 
-      svg.addEventListener("pointermove", (event) => {{
-        const target = event.target.closest("rect[data-type]");
-        if (!target) {{
-          tooltip.classList.remove("is-visible");
-          return;
-        }}
+      function hideTooltip() {{
+        tooltip.classList.remove("is-visible");
+      }}
+
+      function showTooltip(target, clientX, clientY, anchorToRect = false) {{
         const type = target.dataset.type;
         const label = target.dataset.label;
         const share = Number(target.dataset.share || 0);
@@ -4615,13 +4862,53 @@ def render_html() -> str:
           <span>${{formatPercent(share)}} · ${{formatCurrency(value)}}</span>
         `;
         const shellRect = shell.getBoundingClientRect();
-        tooltip.style.left = `${{event.clientX - shellRect.left}}px`;
-        tooltip.style.top = `${{event.clientY - shellRect.top}}px`;
+        const targetRect = target.getBoundingClientRect();
+        const relativeX = anchorToRect
+          ? targetRect.left - shellRect.left + targetRect.width / 2
+          : clientX - shellRect.left;
+        const relativeY = anchorToRect
+          ? Math.max(28, targetRect.top - shellRect.top + Math.min(targetRect.height * 0.4, 26))
+          : clientY - shellRect.top;
+        tooltip.style.left = `${{Math.max(60, Math.min(relativeX, shellRect.width - 60))}}px`;
+        tooltip.style.top = `${{Math.max(28, relativeY)}}px`;
         tooltip.classList.add("is-visible");
+      }}
+
+      svg.addEventListener("pointermove", (event) => {{
+        if (event.pointerType && event.pointerType !== "mouse") {{
+          return;
+        }}
+        const target = event.target.closest("rect[data-type]");
+        if (!target) {{
+          hideTooltip();
+          return;
+        }}
+        showTooltip(target, event.clientX, event.clientY, false);
       }});
 
       svg.addEventListener("pointerleave", () => {{
-        tooltip.classList.remove("is-visible");
+        hideTooltip();
+      }});
+
+      svg.addEventListener("pointerdown", (event) => {{
+        const target = event.target.closest("rect[data-type]");
+        if (!target) {{
+          hideTooltip();
+          return;
+        }}
+        if (event.pointerType === "touch" || event.pointerType === "pen") {{
+          event.preventDefault();
+          showTooltip(target, event.clientX, event.clientY, true);
+        }}
+      }});
+
+      svg.addEventListener("click", (event) => {{
+        const target = event.target.closest("rect[data-type]");
+        if (!target) {{
+          hideTooltip();
+          return;
+        }}
+        showTooltip(target, event.clientX, event.clientY, true);
       }});
     }}
 
@@ -4875,6 +5162,7 @@ def render_html() -> str:
       renderComparison();
       renderTable();
       applyPanelHeadingTheme();
+      applySensitiveVisibility();
     }}
 
     document.getElementById("snapshotSelect").addEventListener("change", (event) => {{
@@ -4900,6 +5188,12 @@ def render_html() -> str:
     document.getElementById("refreshDataButton").addEventListener("click", () => syncPortfolio());
 
     applyTheme(document.documentElement.dataset.theme || "dark");
+    try {{
+      state.hideSensitiveValues = localStorage.getItem("investment-hide-sensitive") === "true";
+    }} catch (error) {{
+      state.hideSensitiveValues = false;
+    }}
+    applyPrivacyPreference(state.hideSensitiveValues);
     syncFilterState();
     renderHeroMeta();
     renderTypeFilterSummary();
@@ -4908,6 +5202,7 @@ def render_html() -> str:
     renderPerformanceAssetModal();
     renderSelector();
     attachThemeToggle();
+    attachPrivacyToggle();
     attachChartModeToggle();
     attachAllocationChartToggle();
     attachTypeFilterModal();
