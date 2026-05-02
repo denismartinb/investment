@@ -1,0 +1,9 @@
+{
+  "name": "investment-atlas-dashboard",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "vercel dev",
+    "local": "node local_server.js"
+  }
+}
