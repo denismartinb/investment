@@ -2435,6 +2435,10 @@ def render_html() -> str:
               <span class="theme-icon" id="themeToggleIcon">☾</span>
               <span class="theme-label" id="themeToggleLabel">Modo oscuro</span>
             </button>
+            <button class="theme-toggle" id="logoutButton" type="button" title="Cerrar sesión">
+              <span class="theme-icon">⇥</span>
+              <span class="theme-label">Salir</span>
+            </button>
           </div>
           <aside class="control-card">
             <h2>Exploración</h2>
@@ -4664,6 +4668,26 @@ def render_html() -> str:
       }});
     }}
 
+    function attachLogoutButton() {{
+      const button = document.getElementById("logoutButton");
+      if (!button) {{
+        return;
+      }}
+      button.addEventListener("click", async () => {{
+        button.disabled = true;
+        try {{
+          await fetch("/api/auth/logout", {{
+            method: "POST",
+            headers: {{ Accept: "application/json" }},
+            credentials: "same-origin",
+          }});
+        }} catch (error) {{
+        }} finally {{
+          window.location.href = "/login";
+        }}
+      }});
+    }}
+
     function attachPrivacyToggle() {{
       document.getElementById("privacyToggleButton").addEventListener("click", () => {{
         applyPrivacyPreference(!state.hideSensitiveValues);
@@ -5203,6 +5227,7 @@ def render_html() -> str:
     renderSelector();
     attachThemeToggle();
     attachPrivacyToggle();
+    attachLogoutButton();
     attachChartModeToggle();
     attachAllocationChartToggle();
     attachTypeFilterModal();

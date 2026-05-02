@@ -2,28 +2,13 @@
 
 ## Qué incluye
 
-- `investment_dashboard.html`: dashboard estático que llama a la API privada para cargar Google Sheets.
-- `api/portfolio.js`: función serverless que lee tu Google Sheet privada.
-- `vercel.json`: hace que `/` sirva el dashboard.
-- `local_server.js`: servidor local para probar el mismo flujo antes de desplegar.
-
-## Despliegue en GitHub + Vercel
-
-1. Crea un repositorio vacío en GitHub.
-2. Desde esta carpeta, sube el proyecto:
-
-```bash
-git init
-git add .
-git commit -m "Initial investment dashboard"
-git branch -M main
-git remote add origin https://github.com/TU_USUARIO/TU_REPO.git
-git push -u origin main
-```
-
-3. Entra en [Vercel](https://vercel.com/), pulsa `Add New -> Project` e importa ese repositorio.
-4. En `Environment Variables` añade las variables indicadas abajo.
-5. Pulsa `Deploy`.
+- `investment_dashboard.html`: dashboard estático protegido tras login.
+- `login.html`: pantalla de acceso con usuario y contraseña.
+- `api/dashboard.js`: entrega el dashboard solo si la sesión es válida.
+- `api/portfolio.js`: función serverless que lee tu Google Sheet privada y ahora exige sesión.
+- `api/auth/login.js` y `api/auth/logout.js`: inicio y cierre de sesión.
+- `vercel.json`: enruta `/` al dashboard protegido y `/login` a la pantalla de acceso.
+- `local_server.js`: servidor local para probar exactamente el mismo flujo antes de desplegar.
 
 ## Variables de entorno de Vercel
 
@@ -36,55 +21,49 @@ Debes configurar estas variables en el proyecto de Vercel:
 - `GOOGLE_SHEETS_PLAN_RANGE='Plan aportaciones'!A:ZZ`
 - `GOOGLE_SERVICE_ACCOUNT_EMAIL`
 - `GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY`
+- `DASHBOARD_USERNAME`
+- `DASHBOARD_PASSWORD`
+- `DASHBOARD_AUTH_SECRET`
 
-## Cómo conectarlo a tu Google Sheet privada
+## Protección del dashboard
 
-1. Crea una service account en Google Cloud.
-2. Activa Google Sheets API en ese proyecto.
-3. Comparte tu Google Sheet con el email de la service account como `Viewer`.
-4. Pega las variables anteriores en Vercel.
+El acceso ya no depende de Vercel Authentication. Ahora el proyecto usa:
 
-Importante:
+- login propio con `usuario + contraseña`
+- cookie de sesión firmada
+- protección tanto del HTML principal como de `/api/portfolio`
 
-- no subas el JSON descargado de la service account a GitHub
-- pega solo `client_email` y `private_key` en Vercel
-- como esa clave pasó por el chat, te conviene rotarla en Google Cloud antes de publicar
+Recomendaciones:
+
+- usa una `DASHBOARD_AUTH_SECRET` larga y aleatoria
+- no reutilices tu contraseña de otros servicios
+- rota la `GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY`, porque quedó expuesta durante esta conversación
 
 ## Desarrollo local
+
+1. Añade en `.env.local` las variables de Google y también:
+   - `DASHBOARD_USERNAME`
+   - `DASHBOARD_PASSWORD`
+   - `DASHBOARD_AUTH_SECRET`
+2. Arranca:
 
 ```bash
 npm run local
 ```
 
-Luego abre `http://127.0.0.1:3001`. En ese modo, el dashboard ya lee directamente la Google Sheet privada desde la API local.
+3. Abre `http://127.0.0.1:3001/login`
 
-Si prefieres simular Vercel:
+## Despliegue en GitHub + Vercel
 
-```bash
-npx vercel dev
-```
+1. Sube el proyecto al repo.
+2. Importa el repo en Vercel.
+3. Añade todas las variables de entorno anteriores.
+4. Haz `Deploy`.
 
-## Checklist antes de hacer push
+## Checklist antes de publicar
 
 - `.env.local` no debe subirse
 - `investment-304214-0ce384847edb.json` no debe subirse
-- el dashboard local debe funcionar en `http://127.0.0.1:3001`
-- en Vercel debes ver `/api/portfolio` responder sin error
-- si cambias la hoja, el botón `Actualizar datos` debe refrescar el dashboard
-
-## Estructura esperada de la hoja
-
-La primera fila debe contener estas cabeceras:
-
-- `Nombre`
-- `Fecha`
-- `Tipo Inversión`
-- `Participaciones`
-- `Precio Participación`
-- `Valor`
-- `Aportación`
-- `Beneficio`
-- `TER`
-- `ISIN`
-
-Las fechas pueden estar como `dd/mm/yyyy` o `yyyy-mm-dd`.
+- `DASHBOARD_PASSWORD` y `DASHBOARD_AUTH_SECRET` deben existir en Vercel
+- el login debe funcionar en `/login`
+- `/api/portfolio` debe devolver `401` sin sesión y `200` con sesión

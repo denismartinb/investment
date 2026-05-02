@@ -1,6 +1,7 @@
 const crypto = require("node:crypto");
 const fs = require("node:fs");
 const path = require("node:path");
+const { requireAuth } = require("../lib/auth");
 
 const MONTHS = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
 const PLAN_MONTH_ALIASES = [
@@ -455,6 +456,10 @@ async function getPortfolioPayload() {
 }
 
 async function handler(req, res) {
+  if (!requireAuth(req, res, { api: true })) {
+    return;
+  }
+
   res.setHeader("Cache-Control", "no-store, max-age=0");
   res.setHeader("Content-Type", "application/json; charset=utf-8");
 

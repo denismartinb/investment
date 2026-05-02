@@ -2311,6 +2311,10 @@
               <span class="theme-icon" id="themeToggleIcon">☾</span>
               <span class="theme-label" id="themeToggleLabel">Modo oscuro</span>
             </button>
+            <button class="theme-toggle" id="logoutButton" type="button" title="Cerrar sesión">
+              <span class="theme-icon">⇥</span>
+              <span class="theme-label">Salir</span>
+            </button>
           </div>
           <aside class="control-card">
             <h2>Exploración</h2>
@@ -2634,7 +2638,7 @@
     </div>
   </div>
 
-  <script id="portfolio-data" type="application/json">{"generatedAt":"2026-05-02 23:19","sourceFile":"Google Sheets · Data","series":[],"snapshots":{},"dates":[],"latestDate":null,"latestPositions":[],"contributionPlan":{"yearLabel":null,"months":[],"assets":[],"totalMonthly":0,"totalAnnual":0,"totalMonthlyEquity":0,"totalMonthlyFixedIncome":0,"averageMonthly":0,"assetCount":0,"error":null}}</script>
+  <script id="portfolio-data" type="application/json">{"generatedAt":"2026-05-02 23:30","sourceFile":"Google Sheets · Data","series":[],"snapshots":{},"dates":[],"latestDate":null,"latestPositions":[],"contributionPlan":{"yearLabel":null,"months":[],"assets":[],"totalMonthly":0,"totalAnnual":0,"totalMonthlyEquity":0,"totalMonthlyFixedIncome":0,"averageMonthly":0,"assetCount":0,"error":null}}</script>
   <script>
     let rawData = JSON.parse(document.getElementById("portfolio-data").textContent);
     const state = {
@@ -4540,6 +4544,26 @@
       });
     }
 
+    function attachLogoutButton() {
+      const button = document.getElementById("logoutButton");
+      if (!button) {
+        return;
+      }
+      button.addEventListener("click", async () => {
+        button.disabled = true;
+        try {
+          await fetch("/api/auth/logout", {
+            method: "POST",
+            headers: { Accept: "application/json" },
+            credentials: "same-origin",
+          });
+        } catch (error) {
+        } finally {
+          window.location.href = "/login";
+        }
+      });
+    }
+
     function attachPrivacyToggle() {
       document.getElementById("privacyToggleButton").addEventListener("click", () => {
         applyPrivacyPreference(!state.hideSensitiveValues);
@@ -5079,6 +5103,7 @@
     renderSelector();
     attachThemeToggle();
     attachPrivacyToggle();
+    attachLogoutButton();
     attachChartModeToggle();
     attachAllocationChartToggle();
     attachTypeFilterModal();
