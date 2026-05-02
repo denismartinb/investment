@@ -1,0 +1,4808 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Investment Atlas</title>
+  <script>
+    (() => {
+      try {
+        const savedTheme = localStorage.getItem("investment-theme");
+        document.documentElement.dataset.theme = savedTheme === "light" ? "light" : "dark";
+      } catch (error) {
+        document.documentElement.dataset.theme = "dark";
+      }
+    })();
+  </script>
+  <style>
+    :root {
+      --bg: #08131f;
+      --bg-2: #0d1b2a;
+      --panel: rgba(11, 25, 39, 0.78);
+      --panel-border: rgba(130, 156, 185, 0.16);
+      --muted: #8ea2b8;
+      --text: #eef5fb;
+      --heading: #eef5fb;
+      --subheading: #8ea2b8;
+      --accent: #2ee6a6;
+      --accent-2: #65c7ff;
+      --accent-3: #f8bf62;
+      --danger: #ff7d7d;
+      --shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+      --radius-xl: 30px;
+      --radius-lg: 22px;
+      --radius-md: 18px;
+      --grid: minmax(0, 1fr);
+      --page-bg:
+        radial-gradient(circle at top left, rgba(46, 230, 166, 0.16), transparent 26%),
+        radial-gradient(circle at 85% 10%, rgba(101, 199, 255, 0.18), transparent 22%),
+        linear-gradient(160deg, #050c15 0%, #091521 50%, #06111b 100%);
+      --grid-line: rgba(255,255,255,0.025);
+      --grid-mask: linear-gradient(to bottom, rgba(0,0,0,0.18), rgba(0,0,0,0.7));
+      --hero-border: rgba(132, 176, 219, 0.16);
+      --hero-bg:
+        linear-gradient(145deg, rgba(9, 20, 32, 0.95), rgba(9, 24, 38, 0.74)),
+        radial-gradient(circle at top right, rgba(46, 230, 166, 0.16), transparent 28%);
+      --hero-orb: radial-gradient(circle, rgba(101, 199, 255, 0.18), transparent 68%);
+      --eyebrow-bg: rgba(255, 255, 255, 0.05);
+      --lead: #bfd0e1;
+      --donut-core: linear-gradient(180deg, rgba(7, 19, 31, 0.96), rgba(6, 18, 28, 0.94));
+      --tooltip-bg: rgba(6, 18, 28, 0.96);
+    }
+
+    html[data-theme="light"] {
+      --bg: #e4edf5;
+      --bg-2: #f7fbff;
+      --panel: rgba(255, 255, 255, 0.9);
+      --panel-border: rgba(63, 95, 125, 0.16);
+      --muted: #495f74;
+      --text: #0f2236;
+      --heading: #000000;
+      --subheading: #000000;
+      --shadow: 0 18px 50px rgba(48, 75, 103, 0.16);
+      --page-bg:
+        radial-gradient(circle at top left, rgba(46, 230, 166, 0.12), transparent 28%),
+        radial-gradient(circle at 85% 10%, rgba(101, 199, 255, 0.16), transparent 24%),
+        linear-gradient(160deg, #f8fbfe 0%, #eef4fa 52%, #e5edf5 100%);
+      --grid-line: rgba(15,34,54,0.065);
+      --grid-mask: linear-gradient(to bottom, rgba(0,0,0,0.08), rgba(0,0,0,0.36));
+      --hero-border: rgba(63, 95, 125, 0.18);
+      --hero-bg:
+        linear-gradient(145deg, rgba(255, 255, 255, 0.98), rgba(233, 241, 248, 0.95)),
+        radial-gradient(circle at top right, rgba(46, 230, 166, 0.11), transparent 30%);
+      --hero-orb: radial-gradient(circle, rgba(101, 199, 255, 0.16), transparent 68%);
+      --eyebrow-bg: rgba(15, 34, 54, 0.055);
+      --lead: #31485d;
+      --donut-core: linear-gradient(180deg, rgba(251, 253, 255, 0.99), rgba(238, 244, 249, 0.99));
+      --tooltip-bg: rgba(255, 255, 255, 0.985);
+    }
+
+    html[data-theme="light"] .hero-chip,
+    html[data-theme="light"] .theme-toggle,
+    html[data-theme="light"] .sync-button,
+    html[data-theme="light"] select,
+    html[data-theme="light"] .toggle-row button,
+    html[data-theme="light"] .sync-status,
+    html[data-theme="light"] .mini-button,
+    html[data-theme="light"] .filter-button {
+      background: rgba(255, 255, 255, 0.84);
+      border-color: rgba(63, 95, 125, 0.18);
+      color: var(--text);
+      box-shadow: 0 6px 18px rgba(69, 98, 126, 0.08);
+    }
+
+    html[data-theme="light"] .control-card {
+      background: linear-gradient(165deg, rgba(233, 241, 248, 0.98), rgba(219, 231, 241, 0.97));
+      border-color: rgba(63, 95, 125, 0.18);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.8), 0 14px 28px rgba(69, 98, 126, 0.08);
+    }
+
+    html[data-theme="light"] .control-card .muted,
+    html[data-theme="light"] .control-card label,
+    html[data-theme="light"] .filter-button span,
+    html[data-theme="light"] .sync-status,
+    html[data-theme="light"] .hero-chip .label,
+    html[data-theme="light"] .kpi-label,
+    html[data-theme="light"] .panel-head p,
+    html[data-theme="light"] .legend-item,
+    html[data-theme="light"] .type-sub,
+    html[data-theme="light"] .position-sub,
+    html[data-theme="light"] .insight .tag,
+    html[data-theme="light"] .insight .muted,
+    html[data-theme="light"] .compare-kpi-label,
+    html[data-theme="light"] .compare-kpi-note,
+    html[data-theme="light"] .compare-delta-label,
+    html[data-theme="light"] .compare-delta-note,
+    html[data-theme="light"] .compare-delta-head p,
+    html[data-theme="light"] .performance-panel p,
+    html[data-theme="light"] .contribution-panel p,
+    html[data-theme="light"] .contribution-summary-note,
+    html[data-theme="light"] .performance-mini-title,
+    html[data-theme="light"] .contribution-split-title,
+    html[data-theme="light"] .contribution-split-item span,
+    html[data-theme="light"] th,
+    html[data-theme="light"] .footer-note {
+      color: #42586d;
+    }
+
+    html[data-theme="light"] .muted {
+      color: #42586d;
+    }
+
+    html[data-theme="light"] .hero-chip .value,
+    html[data-theme="light"] .filter-button strong,
+    html[data-theme="light"] .panel h2,
+    html[data-theme="light"] .type-name,
+    html[data-theme="light"] .position-name,
+    html[data-theme="light"] .share-value,
+    html[data-theme="light"] .value-block,
+    html[data-theme="light"] .insight strong,
+    html[data-theme="light"] .compare-kpi-value,
+    html[data-theme="light"] .compare-delta-value,
+    html[data-theme="light"] .compare-delta-head h3,
+    html[data-theme="light"] .performance-panel h3,
+    html[data-theme="light"] .contribution-panel h3,
+    html[data-theme="light"] .contribution-summary-value,
+    html[data-theme="light"] .performance-mini-value,
+    html[data-theme="light"] .contribution-bar-name,
+    html[data-theme="light"] .contribution-split-item strong,
+    html[data-theme="light"] tbody td,
+    html[data-theme="light"] .panel {
+      background: linear-gradient(180deg, rgba(255,255,255,0.94), rgba(241, 247, 252, 0.9));
+      border-color: rgba(63, 95, 125, 0.15);
+    }
+
+    html[data-theme="light"] .panel::before {
+      background: linear-gradient(180deg, rgba(255,255,255,0.55), transparent 42%);
+    }
+
+    html[data-theme="light"] .kpi-card,
+    html[data-theme="light"] .type-row,
+    html[data-theme="light"] .position-row,
+    html[data-theme="light"] .insight,
+    html[data-theme="light"] .compare-card,
+    html[data-theme="light"] .compare-delta,
+    html[data-theme="light"] .compare-kpi,
+    html[data-theme="light"] .compare-delta-item,
+    html[data-theme="light"] .performance-panel,
+    html[data-theme="light"] .contribution-panel,
+    html[data-theme="light"] .performance-mini-card,
+    html[data-theme="light"] .contribution-summary-card,
+    html[data-theme="light"] .table-shell {
+      background: linear-gradient(180deg, rgba(255,255,255,0.88), rgba(239,246,251,0.82));
+      border-color: rgba(63, 95, 125, 0.15);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.72);
+    }
+
+    html[data-theme="light"] .bar-track {
+      background: rgba(104, 130, 156, 0.18);
+    }
+
+    html[data-theme="light"] .switch {
+      background: rgba(104, 130, 156, 0.22);
+      border-color: rgba(63, 95, 125, 0.16);
+    }
+
+    html[data-theme="light"] .donut-shell-base {
+      fill: rgba(125, 151, 177, 0.14);
+      stroke: rgba(77, 111, 145, 0.08);
+    }
+
+    html[data-theme="light"] .donut-shell-core {
+      fill: rgba(250, 252, 255, 0.98);
+      stroke: rgba(77, 111, 145, 0.12);
+    }
+
+    html[data-theme="light"] .donut-slice-label {
+      fill: #102132;
+    }
+
+    html[data-theme="light"] thead {
+      background: rgba(220, 232, 242, 0.98);
+    }
+
+    html[data-theme="light"] tbody tr + tr {
+      border-top-color: rgba(77, 111, 145, 0.08);
+    }
+
+    html[data-theme="light"] .modal-card {
+      background: linear-gradient(180deg, rgba(247, 251, 254, 0.98), rgba(234, 242, 248, 0.98));
+      border-color: rgba(63, 95, 125, 0.16);
+    }
+
+    html[data-theme="light"] .type-card {
+      background: rgba(255,255,255,0.82);
+      border-color: rgba(77, 111, 145, 0.12);
+    }
+
+    html[data-theme="light"] .type-card strong {
+      color: #102132;
+    }
+
+    html[data-theme="light"] .hero-eyebrow,
+    html[data-theme="light"] .hero-token {
+      background: rgba(255, 255, 255, 0.82);
+      border-color: rgba(63, 95, 125, 0.16);
+      color: #183247;
+      box-shadow: 0 8px 18px rgba(69, 98, 126, 0.08);
+    }
+
+    html[data-theme="light"] .pill,
+    html[data-theme="light"] .share-pill {
+      background: rgba(219, 231, 242, 0.96);
+      color: #173147;
+      border: 1px solid rgba(63, 95, 125, 0.12);
+    }
+
+    html[data-theme="light"] .delta.positive,
+    html[data-theme="light"] .pill.positive,
+    html[data-theme="light"] .positive {
+      color: #0f7b57;
+    }
+
+    html[data-theme="light"] .delta.positive,
+    html[data-theme="light"] .pill.positive {
+      background: rgba(46, 230, 166, 0.16);
+      border-color: rgba(18, 132, 93, 0.14);
+    }
+
+    html[data-theme="light"] .delta.negative,
+    html[data-theme="light"] .pill.negative,
+    html[data-theme="light"] .negative {
+      color: #b24343;
+    }
+
+    html[data-theme="light"] .delta.negative,
+    html[data-theme="light"] .pill.negative {
+      background: rgba(255, 125, 125, 0.14);
+      border-color: rgba(178, 67, 67, 0.14);
+    }
+
+    html[data-theme="light"] .kpi-foot,
+    html[data-theme="light"] .position-sub,
+    html[data-theme="light"] .type-sub {
+      color: #3f566b;
+    }
+
+    html[data-theme="light"] .hero::before {
+      background:
+        radial-gradient(circle at 12% 18%, rgba(15, 34, 54, 0.06), transparent 18%),
+        linear-gradient(115deg, rgba(15, 34, 54, 0.05), transparent 28%),
+        linear-gradient(180deg, rgba(255,255,255,0.08), transparent 34%),
+        repeating-linear-gradient(135deg, rgba(63, 95, 125, 0.04) 0 1px, transparent 1px 18px);
+      opacity: 0.82;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Avenir Next", "SF Pro Display", "Segoe UI", "Helvetica Neue", sans-serif;
+      color: var(--text);
+      background: var(--page-bg);
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(var(--grid-line) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+      background-size: 80px 80px;
+      mask-image: var(--grid-mask);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .shell {
+      position: relative;
+      z-index: 1;
+      width: min(1380px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 32px 0 56px;
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      padding: 30px 32px;
+      border-radius: var(--radius-xl);
+      border: 1px solid var(--hero-border);
+      background-image:
+        var(--hero-bg),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1400 420'%3E%3Cdefs%3E%3ClinearGradient id='a' x1='0' y1='0' x2='1' y2='0'%3E%3Cstop offset='0%25' stop-color='%231fe0a5'/%3E%3Cstop offset='100%25' stop-color='%2365c7ff'/%3E%3C/linearGradient%3E%3ClinearGradient id='b' x1='0' y1='0' x2='1' y2='0'%3E%3Cstop offset='0%25' stop-color='%23ffbf47'/%3E%3Cstop offset='100%25' stop-color='%23ff7d7d'/%3E%3C/linearGradient%3E%3ClinearGradient id='c' x1='0' y1='0' x2='1' y2='0'%3E%3Cstop offset='0%25' stop-color='%23b38cff'/%3E%3Cstop offset='100%25' stop-color='%2365c7ff'/%3E%3C/linearGradient%3E%3ClinearGradient id='fillA' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0%25' stop-color='rgba(101,199,255,0.22)'/%3E%3Cstop offset='100%25' stop-color='rgba(101,199,255,0)'/%3E%3C/linearGradient%3E%3ClinearGradient id='fillB' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0%25' stop-color='rgba(31,224,165,0.18)'/%3E%3Cstop offset='100%25' stop-color='rgba(31,224,165,0)'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cg opacity='.14' stroke='white' stroke-width='1'%3E%3Cpath d='M0 340H1400'/%3E%3Cpath d='M0 286H1400'/%3E%3Cpath d='M0 232H1400'/%3E%3Cpath d='M0 178H1400'/%3E%3Cpath d='M0 124H1400'/%3E%3Cpath d='M160 36V390'/%3E%3Cpath d='M360 36V390'/%3E%3Cpath d='M560 36V390'/%3E%3Cpath d='M760 36V390'/%3E%3Cpath d='M960 36V390'/%3E%3Cpath d='M1160 36V390'/%3E%3C/g%3E%3Cg opacity='.18'%3E%3Crect x='826' y='124' width='12' height='160' rx='6' fill='white'/%3E%3Crect x='870' y='96' width='12' height='188' rx='6' fill='white'/%3E%3Crect x='914' y='138' width='12' height='146' rx='6' fill='white'/%3E%3Crect x='958' y='74' width='12' height='210' rx='6' fill='white'/%3E%3Crect x='1002' y='110' width='12' height='174' rx='6' fill='white'/%3E%3Crect x='1046' y='58' width='12' height='226' rx='6' fill='white'/%3E%3Crect x='1090' y='92' width='12' height='192' rx='6' fill='white'/%3E%3Crect x='1134' y='46' width='12' height='238' rx='6' fill='white'/%3E%3C/g%3E%3Cpath d='M0 330C96 308 184 292 266 270C374 242 470 226 572 196C686 162 782 122 882 90C1000 52 1168 30 1400 24L1400 420L0 420Z' fill='url(%23fillA)'/%3E%3Cpath d='M0 362C118 346 218 326 314 296C412 266 506 242 608 220C720 196 822 178 924 152C1040 122 1208 104 1400 98L1400 420L0 420Z' fill='url(%23fillB)'/%3E%3Cpath d='M0 328C96 308 184 292 266 270C374 242 470 226 572 196C686 162 782 122 882 90C1000 52 1168 30 1400 24' fill='none' stroke='url(%23a)' stroke-width='5' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M0 362C118 346 218 326 314 296C412 266 506 242 608 220C720 196 822 178 924 152C1040 122 1208 104 1400 98' fill='none' stroke='url(%23b)' stroke-width='4' stroke-linecap='round' stroke-linejoin='round' opacity='.9'/%3E%3Cpath d='M0 286C132 270 238 246 346 220C454 194 552 170 654 146C760 120 854 102 952 90C1086 74 1238 70 1400 74' fill='none' stroke='url(%23c)' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round' opacity='.72'/%3E%3Cg fill='white'%3E%3Ccircle cx='882' cy='90' r='6' opacity='.88'/%3E%3Ccircle cx='572' cy='196' r='5' opacity='.72'/%3E%3Ccircle cx='314' cy='296' r='4.5' opacity='.62'/%3E%3Ccircle cx='1134' cy='46' r='6' opacity='.72'/%3E%3C/g%3E%3C/svg%3E");
+      background-size: auto, cover;
+      background-position: center, center;
+      background-repeat: no-repeat;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 12% 18%, rgba(255,255,255,0.09), transparent 18%),
+        linear-gradient(115deg, rgba(255,255,255,0.08), transparent 28%),
+        linear-gradient(180deg, rgba(255,255,255,0.05), transparent 34%),
+        repeating-linear-gradient(135deg, rgba(255,255,255,0.04) 0 1px, transparent 1px 18px);
+      opacity: 0.48;
+      pointer-events: none;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      right: -80px;
+      top: -120px;
+      width: 320px;
+      height: 320px;
+      border-radius: 50%;
+      background: var(--hero-orb);
+      pointer-events: none;
+    }
+
+    .theme-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.04);
+      color: var(--text);
+      cursor: pointer;
+      transition: 160ms ease;
+    }
+
+    .theme-toggle:hover,
+    .sync-button:hover:not(:disabled) {
+      transform: translateY(-1px);
+      border-color: rgba(255,255,255,0.16);
+    }
+
+    .theme-icon {
+      display: inline-grid;
+      place-items: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, rgba(46, 230, 166, 0.18), rgba(101, 199, 255, 0.12));
+      font-size: 14px;
+      line-height: 1;
+    }
+
+    .theme-label {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+      white-space: nowrap;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.45fr 0.88fr;
+      gap: 26px;
+      align-items: start;
+    }
+
+    .hero-main {
+      position: relative;
+      z-index: 1;
+      min-width: 0;
+    }
+
+    .hero-copy {
+      max-width: 68ch;
+      position: relative;
+      padding: 6px 0 4px;
+    }
+
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+      padding: 7px 12px;
+      border-radius: 999px;
+      background: var(--eyebrow-bg);
+      border: 1px solid rgba(255,255,255,0.08);
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-weight: 700;
+      backdrop-filter: blur(14px);
+    }
+
+    .hero-eyebrow::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      box-shadow: 0 0 0 6px rgba(46, 230, 166, 0.12);
+    }
+
+    .hero-divider {
+      width: 112px;
+      height: 4px;
+      margin: 18px 0 16px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, rgba(46, 230, 166, 0.95), rgba(101, 199, 255, 0.92), rgba(248, 191, 98, 0.9));
+      box-shadow: 0 10px 28px rgba(46, 230, 166, 0.18);
+    }
+
+    .hero-highlights {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .hero-token {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      color: #dce7f1;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      backdrop-filter: blur(12px);
+    }
+
+    .hero-token::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+      opacity: 0.72;
+    }
+
+    h1 {
+      margin: 0 0 12px;
+      font-size: clamp(34px, 6vw, 60px);
+      line-height: 0.98;
+      letter-spacing: -0.05em;
+      max-width: 9ch;
+    }
+
+    .lead {
+      max-width: 64ch;
+      margin: 0;
+      color: var(--lead);
+      line-height: 1.6;
+      font-size: 15px;
+      text-wrap: balance;
+    }
+
+    .hero-side {
+      display: grid;
+      gap: 12px;
+      align-content: start;
+    }
+
+    .hero-theme-row {
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .control-card {
+      position: relative;
+      padding: 22px;
+      border-radius: 24px;
+      background:
+        linear-gradient(165deg, rgba(13, 30, 47, 0.85), rgba(7, 20, 33, 0.84));
+      border: 1px solid rgba(138, 164, 194, 0.12);
+    }
+
+    .control-card h2,
+    .panel h2 {
+      margin: 0 0 8px;
+      font-size: 20px;
+      letter-spacing: -0.03em;
+      color: var(--heading);
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    .control-stack {
+      margin-top: 8px;
+      display: grid;
+      gap: 16px;
+    }
+
+    .control-footer {
+      margin-top: 18px;
+    }
+
+    .selector {
+      display: grid;
+      gap: 10px;
+    }
+
+    .selector.compact {
+      gap: 6px;
+    }
+
+    .selector.compact label {
+      font-size: 11px;
+      letter-spacing: 0.06em;
+    }
+
+    .selector.compact select {
+      padding: 9px 11px;
+      border-radius: 12px;
+      font-size: 12px;
+      min-width: 0;
+    }
+
+    .selector label {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    select,
+    button {
+      font: inherit;
+    }
+
+    select {
+      width: 100%;
+      padding: 14px 16px;
+      color: var(--text);
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.09);
+      border-radius: 16px;
+      outline: none;
+    }
+
+    .toggle-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .toggle-row.compact {
+      gap: 6px;
+      flex-wrap: nowrap;
+    }
+
+    .toggle-row button {
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.04);
+      color: var(--muted);
+      cursor: pointer;
+      transition: 160ms ease;
+    }
+
+    .toggle-row.compact button {
+      padding: 8px 11px;
+      font-size: 12px;
+      line-height: 1.1;
+      white-space: nowrap;
+    }
+
+    .toggle-row button.active {
+      color: #03131f;
+      border-color: transparent;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      box-shadow: 0 8px 24px rgba(46, 230, 166, 0.25);
+    }
+
+    .sync-row {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .sync-row.header-sync {
+      gap: 10px;
+    }
+
+    .sync-button {
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.04);
+      color: var(--text);
+      cursor: pointer;
+      transition: 160ms ease;
+    }
+
+    .sync-row.header-sync .sync-button {
+      font-size: 12px;
+      line-height: 1.1;
+    }
+
+    .sync-button:disabled {
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+
+    .sync-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 44px;
+      padding: 10px 14px;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.06);
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .sync-row.header-sync .sync-status {
+      min-height: 38px;
+      padding: 8px 12px;
+      font-size: 12px;
+    }
+
+    .sync-status::before {
+      content: "";
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.28);
+      flex: none;
+    }
+
+    .sync-status.sync-success::before {
+      background: var(--accent);
+      box-shadow: 0 0 14px rgba(46, 230, 166, 0.45);
+    }
+
+    .sync-status.sync-loading::before {
+      background: var(--accent-3);
+      box-shadow: 0 0 14px rgba(248, 191, 98, 0.45);
+    }
+
+    .sync-status.sync-error::before {
+      background: var(--danger);
+      box-shadow: 0 0 14px rgba(255, 125, 125, 0.45);
+    }
+
+    .filter-tools {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+
+    .filter-meta {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .mini-actions {
+      display: inline-flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .mini-button {
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.04);
+      color: var(--muted);
+      cursor: pointer;
+      transition: 160ms ease;
+    }
+
+    .mini-button.compact {
+      padding: 6px 10px;
+      font-size: 11px;
+      line-height: 1.1;
+    }
+
+    .mini-button:hover {
+      border-color: rgba(255,255,255,0.16);
+      color: var(--text);
+    }
+
+    .mini-button.active {
+      color: #03131f;
+      border-color: transparent;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      box-shadow: 0 8px 24px rgba(46, 230, 166, 0.18);
+    }
+
+    .filter-trigger {
+      display: grid;
+      gap: 10px;
+    }
+
+    .filter-button {
+      width: 100%;
+      padding: 11px 13px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: linear-gradient(145deg, rgba(255,255,255,0.06), rgba(255,255,255,0.025));
+      color: var(--text);
+      cursor: pointer;
+      text-align: left;
+      transition: 160ms ease;
+    }
+
+    .filter-button:hover {
+      border-color: rgba(255,255,255,0.16);
+      transform: translateY(-1px);
+    }
+
+    .filter-button strong {
+      display: block;
+      font-size: 13px;
+      letter-spacing: -0.02em;
+    }
+
+    .filter-button span {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.35;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background: rgba(3, 10, 18, 0.72);
+      backdrop-filter: blur(16px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 180ms ease;
+      z-index: 30;
+    }
+
+    .modal-backdrop.is-open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-card {
+      width: min(720px, 100%);
+      max-height: min(78vh, 860px);
+      overflow: auto;
+      padding: 22px;
+      border-radius: 24px;
+      background: linear-gradient(180deg, rgba(9, 22, 34, 0.98), rgba(6, 18, 28, 0.98));
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow: 0 26px 80px rgba(0, 0, 0, 0.45);
+    }
+
+    .modal-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 14px;
+    }
+
+    .modal-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .type-card {
+      padding: 12px 14px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.035);
+      cursor: pointer;
+      transition: 160ms ease;
+      text-align: left;
+    }
+
+    .type-card:hover {
+      border-color: rgba(255,255,255,0.16);
+      transform: translateY(-1px);
+    }
+
+    .type-card.active {
+      border-color: rgba(46, 230, 166, 0.35);
+      background: linear-gradient(145deg, rgba(46, 230, 166, 0.16), rgba(101, 199, 255, 0.08));
+      box-shadow: inset 0 0 0 1px rgba(46, 230, 166, 0.12);
+    }
+
+    .type-card strong {
+      display: block;
+      font-size: 14px;
+      color: #f5fbff;
+      letter-spacing: -0.02em;
+    }
+
+    .type-card span {
+      display: block;
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.35;
+      overflow-wrap: anywhere;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-top: 14px;
+      flex-wrap: wrap;
+    }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 18px;
+      margin-top: 18px;
+    }
+
+    .panel {
+      position: relative;
+      overflow: hidden;
+      padding: 22px;
+      border-radius: var(--radius-lg);
+      background: var(--panel);
+      border: 1px solid var(--panel-border);
+      backdrop-filter: blur(16px);
+      box-shadow: var(--shadow);
+    }
+
+    .panel::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(255,255,255,0.04), transparent 40%);
+      pointer-events: none;
+    }
+
+    .span-12 { grid-column: span 12; }
+    .span-8 { grid-column: span 8; }
+    .span-7 { grid-column: span 7; }
+    .span-6 { grid-column: span 6; }
+    .span-5 { grid-column: span 5; }
+    .span-4 { grid-column: span 4; }
+    .span-3 { grid-column: span 3; }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .kpi-card {
+      padding: 18px;
+      border-radius: 20px;
+      background:
+        linear-gradient(155deg, rgba(255,255,255,0.055), rgba(255,255,255,0.02));
+      border: 1px solid rgba(255,255,255,0.06);
+      min-height: 156px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .kpi-label {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+    }
+
+    .kpi-value {
+      font-size: clamp(28px, 3vw, 40px);
+      font-weight: 800;
+      letter-spacing: -0.05em;
+      margin-top: 8px;
+    }
+
+    .kpi-foot {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .delta {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-weight: 700;
+    }
+
+    .delta.positive {
+      color: #8af8ca;
+      background: rgba(46, 230, 166, 0.12);
+    }
+
+    .delta.negative {
+      color: #ffb1b1;
+      background: rgba(255, 125, 125, 0.12);
+    }
+
+    .sparkline {
+      width: 100%;
+      height: 42px;
+    }
+
+    .panel-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 18px;
+      margin-bottom: 20px;
+    }
+
+    .panel-actions {
+      display: grid;
+      gap: 12px;
+      justify-items: end;
+      min-width: min(100%, 360px);
+    }
+
+    .panel-head p {
+      margin: 6px 0 0;
+      max-width: 60ch;
+      font-size: 14px;
+      line-height: 1.55;
+      color: var(--subheading);
+    }
+
+    .panel-head .muted,
+    .compare-delta-head p,
+    .performance-panel p,
+    .contribution-panel p {
+      color: var(--subheading);
+    }
+
+    .compare-delta-head h3,
+    .performance-panel h3,
+    .contribution-panel h3 {
+      color: var(--heading);
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 14px;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .swatch {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    .chart-wrap {
+      position: relative;
+      min-height: 360px;
+    }
+
+    #timelineChart {
+      width: 100%;
+      height: 360px;
+      display: block;
+    }
+
+    .chart-tooltip {
+      position: absolute;
+      min-width: 168px;
+      max-width: 240px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: var(--tooltip-bg);
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.28);
+      color: var(--text);
+      opacity: 0;
+      pointer-events: none;
+      transform: translate(-50%, calc(-100% - 14px));
+      transition: opacity 140ms ease;
+      z-index: 2;
+    }
+
+    .chart-tooltip.is-visible {
+      opacity: 1;
+    }
+
+    .chart-tooltip strong {
+      display: block;
+      font-size: 13px;
+      letter-spacing: -0.02em;
+      margin-bottom: 6px;
+    }
+
+    .chart-tooltip-line {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .chart-tooltip-line + .chart-tooltip-line {
+      margin-top: 4px;
+    }
+
+    .chart-tooltip-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      color: var(--muted);
+    }
+
+    .chart-tooltip-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex: none;
+    }
+
+    .timeline-hit {
+      cursor: pointer;
+    }
+
+    .split-grid {
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 18px;
+    }
+
+    .donut-layout {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 0;
+      margin: 4px 0 10px;
+    }
+
+    .donut-shell {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .donut {
+      position: relative;
+      width: min(100%, 390px);
+      aspect-ratio: 1;
+      margin: 0 auto;
+      background: none;
+    }
+
+    .donut.is-treemap {
+      width: 100%;
+      max-width: 100%;
+      aspect-ratio: 1.42;
+      min-height: 320px;
+    }
+
+    .donut-svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      overflow: visible;
+    }
+
+    .donut-slice {
+      cursor: pointer;
+      transition: opacity 160ms ease, filter 160ms ease;
+    }
+
+    .donut-slice.dimmed {
+      opacity: 0.3;
+    }
+
+    .donut-slice.active {
+      filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.22));
+    }
+
+    .donut-shell-base {
+      fill: rgba(255,255,255,0.02);
+      stroke: rgba(255,255,255,0.03);
+      stroke-width: 1;
+    }
+
+    .donut-shell-core {
+      fill: rgba(7, 19, 31, 0.88);
+      stroke: rgba(255,255,255,0.04);
+      stroke-width: 1;
+    }
+
+    .donut-slice-label {
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: 0;
+      text-anchor: middle;
+      dominant-baseline: middle;
+      pointer-events: none;
+    }
+
+    .treemap-label {
+      pointer-events: none;
+    }
+
+    .treemap-label-title {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: -0.02em;
+    }
+
+    .treemap-label-share {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+
+    .donut-tooltip {
+      position: absolute;
+      left: 50%;
+      bottom: calc(100% + 14px);
+      transform: translateX(-50%) translateY(6px);
+      min-width: 140px;
+      max-width: 220px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: var(--tooltip-bg);
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.34);
+      color: var(--text);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 160ms ease, transform 160ms ease;
+      z-index: 3;
+      text-align: center;
+    }
+
+    .donut-tooltip.is-visible {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .donut-tooltip strong {
+      display: block;
+      font-size: 13px;
+      letter-spacing: -0.02em;
+      overflow-wrap: anywhere;
+    }
+
+    .donut-tooltip span {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .allocation-trend {
+      margin-top: 18px;
+      padding-top: 6px;
+    }
+
+    .allocation-trend-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 14px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .allocation-trend-note {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .allocation-trend-shell {
+      position: relative;
+      min-height: 248px;
+      border-radius: 22px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.015));
+      border: 1px solid rgba(255,255,255,0.06);
+      padding: 14px 14px 10px;
+    }
+
+    #allocationTrendChart {
+      width: 100%;
+      height: 248px;
+      display: block;
+    }
+
+    .stack {
+      display: grid;
+      gap: 12px;
+    }
+
+    .type-row,
+    .position-row {
+      display: grid;
+      gap: 10px;
+      align-items: center;
+      padding: 14px 16px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .type-row {
+      grid-template-columns: minmax(0, 1.8fr) minmax(0, 1fr) 76px;
+    }
+
+    .type-main,
+    .position-main {
+      min-width: 0;
+    }
+
+    .type-name,
+    .position-name {
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .type-sub,
+    .position-sub {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .share {
+      display: grid;
+      justify-items: end;
+      gap: 8px;
+      text-align: right;
+      font-weight: 700;
+      color: #dce7f1;
+    }
+
+    .share-value {
+      display: block;
+    }
+
+    .share-pill {
+      font-size: 11px;
+      padding: 4px 9px;
+      justify-self: end;
+    }
+
+    .bar-track {
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.07);
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    }
+
+    .position-stack {
+      display: grid;
+      gap: 12px;
+    }
+
+    .position-row {
+      grid-template-columns: minmax(0, 1.7fr) 120px 110px;
+    }
+
+    .value-block {
+      display: grid;
+      justify-items: end;
+      gap: 8px;
+      text-align: right;
+      font-weight: 700;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      background: rgba(255,255,255,0.06);
+      color: #d4dfeb;
+    }
+
+    .positive {
+      color: #8af8ca;
+    }
+
+    .negative {
+      color: #ffb1b1;
+    }
+
+    .insights-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .insight {
+      min-width: 0;
+      padding: 14px 15px;
+      border-radius: 16px;
+      background: linear-gradient(150deg, rgba(255,255,255,0.055), rgba(255,255,255,0.015));
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .insight .tag {
+      display: inline-block;
+      margin-bottom: 6px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: 10px;
+    }
+
+    .insight strong {
+      display: block;
+      font-size: 20px;
+      letter-spacing: -0.04em;
+      margin-bottom: 5px;
+      overflow-wrap: anywhere;
+    }
+
+    .insight .muted {
+      font-size: 13px;
+      line-height: 1.45;
+      overflow-wrap: anywhere;
+    }
+
+    .type-row.is-off,
+    .position-row.is-off {
+      opacity: 0.52;
+    }
+
+    .switch {
+      position: relative;
+      width: 42px;
+      height: 24px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.08);
+      cursor: pointer;
+      transition: 160ms ease;
+    }
+
+    .switch::before {
+      content: "";
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: rgba(230, 239, 247, 0.92);
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.24);
+      transition: 160ms ease;
+    }
+
+    .switch:hover {
+      border-color: rgba(255,255,255,0.16);
+    }
+
+    .switch.active {
+      background: linear-gradient(135deg, rgba(46, 230, 166, 0.88), rgba(101, 199, 255, 0.84));
+      border-color: transparent;
+      box-shadow: 0 8px 24px rgba(46, 230, 166, 0.2);
+    }
+
+    .switch.active::before {
+      transform: translateX(18px);
+      background: #04141f;
+    }
+
+    .table-shell {
+      overflow: hidden;
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.06);
+      background: rgba(255,255,255,0.03);
+    }
+
+    .compare-shell {
+      display: grid;
+      grid-template-columns: minmax(220px, 0.72fr) minmax(360px, 1.2fr) minmax(220px, 0.72fr);
+      gap: 16px;
+      align-items: stretch;
+    }
+
+    .compare-card,
+    .compare-delta {
+      min-width: 0;
+      padding: 16px;
+      border-radius: 20px;
+      background: linear-gradient(160deg, rgba(255,255,255,0.05), rgba(255,255,255,0.018));
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .compare-card .selector {
+      margin-bottom: 14px;
+    }
+
+    .compare-kpis {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .compare-delta-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .compare-kpi,
+    .compare-delta-item {
+      min-width: 0;
+      padding: 12px 13px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.035);
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .compare-kpi-label,
+    .compare-delta-label {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--muted);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .compare-kpi-value,
+    .compare-delta-value {
+      display: block;
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      overflow-wrap: anywhere;
+    }
+
+    .compare-kpi-note,
+    .compare-delta-note {
+      display: block;
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.4;
+      overflow-wrap: anywhere;
+    }
+
+    .compare-delta-head {
+      margin-bottom: 14px;
+    }
+
+    .compare-delta-head h3 {
+      margin: 0;
+      font-size: 18px;
+      letter-spacing: -0.03em;
+    }
+
+    .compare-delta-head p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .performance-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 18px;
+    }
+
+    .performance-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: end;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    .selector.compact {
+      min-width: 126px;
+    }
+
+    .selector.compact label {
+      margin-bottom: 4px;
+      font-size: 10px;
+      letter-spacing: 0.06em;
+    }
+
+    .selector.compact select {
+      min-height: 38px;
+      padding: 8px 34px 8px 12px;
+      font-size: 12px;
+      border-radius: 14px;
+    }
+
+    .selector.compact .filter-button {
+      min-height: 38px;
+      padding: 8px 12px;
+      border-radius: 14px;
+    }
+
+    .selector.compact .filter-button strong {
+      font-size: 12px;
+      letter-spacing: -0.01em;
+    }
+
+    .selector.compact .filter-button span {
+      font-size: 11px;
+    }
+
+    .performance-panel {
+      min-width: 0;
+      padding: 18px;
+      border-radius: 20px;
+      background: linear-gradient(160deg, rgba(255,255,255,0.05), rgba(255,255,255,0.018));
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .performance-panel h3 {
+      margin: 0;
+      font-size: 18px;
+      letter-spacing: -0.03em;
+    }
+
+    .performance-panel p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .performance-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 14px;
+      margin: 14px 0 12px;
+    }
+
+    .performance-chart-wrap {
+      position: relative;
+      min-height: 332px;
+    }
+
+    .performance-mini-stack {
+      display: grid;
+      gap: 12px;
+    }
+
+    .performance-mini-card {
+      position: relative;
+      min-width: 0;
+      padding: 14px 14px 10px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.035);
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .performance-mini-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: baseline;
+      margin-bottom: 8px;
+    }
+
+    .performance-mini-title {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .performance-mini-value {
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .performance-mini-wrap {
+      position: relative;
+      min-height: 118px;
+    }
+
+    #performanceRoiChart,
+    #performanceProfitChart,
+    #performanceInvestedShareChart {
+      width: 100%;
+      height: 118px;
+      display: block;
+    }
+
+    #performanceTypeProfitChart {
+      width: 100%;
+      height: 332px;
+      display: block;
+    }
+
+    .contribution-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.3fr) minmax(320px, 0.7fr);
+      gap: 18px;
+    }
+
+    .contribution-panel {
+      min-width: 0;
+      padding: 18px;
+      border-radius: 20px;
+      background: linear-gradient(160deg, rgba(255,255,255,0.05), rgba(255,255,255,0.018));
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .contribution-panel-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      align-items: flex-start;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .contribution-panel h3 {
+      margin: 0;
+      font-size: 18px;
+      letter-spacing: -0.03em;
+    }
+
+    .contribution-panel p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .contribution-chart-wrap {
+      position: relative;
+      min-height: 332px;
+    }
+
+    #contributionPlanChart {
+      width: 100%;
+      height: 332px;
+      display: block;
+    }
+
+    .contribution-summary-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .contribution-summary-card {
+      min-width: 0;
+      padding: 12px 13px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.035);
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .contribution-summary-label {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--muted);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .contribution-summary-value {
+      display: block;
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      overflow-wrap: anywhere;
+    }
+
+    .contribution-summary-note {
+      display: block;
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.4;
+      overflow-wrap: anywhere;
+    }
+
+    .contribution-bars {
+      display: grid;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .contribution-bar-row {
+      display: grid;
+      gap: 8px;
+    }
+
+    .contribution-bar-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: baseline;
+    }
+
+    .contribution-bar-name {
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .contribution-bar-meta {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+      font-size: 12px;
+    }
+
+    .contribution-bar-value {
+      font-weight: 700;
+    }
+
+    .contribution-bar-track {
+      height: 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.08);
+      overflow: hidden;
+    }
+
+    .contribution-bar-fill {
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #65c7ff, #1fe0a5);
+    }
+
+    .contribution-total-pill {
+      white-space: nowrap;
+    }
+
+    .contribution-split {
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      display: grid;
+      gap: 10px;
+    }
+
+    .contribution-split-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: baseline;
+      flex-wrap: wrap;
+    }
+
+    .contribution-split-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .contribution-split-bar {
+      display: flex;
+      height: 14px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: rgba(255,255,255,0.08);
+    }
+
+    .contribution-split-segment {
+      height: 100%;
+    }
+
+    .contribution-split-segment.equity {
+      background: linear-gradient(90deg, #4db7ff, #7fd2ff);
+    }
+
+    .contribution-split-segment.fixed {
+      background: linear-gradient(90deg, #f7b84b, #ffd98a);
+    }
+
+    .contribution-split-legend {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .contribution-split-item {
+      display: grid;
+      gap: 4px;
+      min-width: 0;
+    }
+
+    .contribution-split-item strong {
+      font-size: 13px;
+      letter-spacing: -0.02em;
+    }
+
+    .contribution-split-item span {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+
+    .allocation-trend-tooltip {
+      position: absolute;
+      min-width: 168px;
+      max-width: 240px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: var(--tooltip-bg);
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.28);
+      color: var(--text);
+      opacity: 0;
+      pointer-events: none;
+      transform: translate(-50%, calc(-100% - 14px));
+      transition: opacity 140ms ease;
+      z-index: 2;
+    }
+
+    .allocation-trend-tooltip.is-visible {
+      opacity: 1;
+    }
+
+    .allocation-trend-tooltip strong {
+      display: block;
+      font-size: 13px;
+      letter-spacing: -0.02em;
+    }
+
+    .allocation-trend-tooltip span {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    thead {
+      background: rgba(255,255,255,0.05);
+    }
+
+    th,
+    td {
+      padding: 14px 16px;
+      text-align: left;
+      font-size: 13px;
+    }
+
+    th {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    tbody tr + tr {
+      border-top: 1px solid rgba(255,255,255,0.05);
+    }
+
+    tbody td:last-child,
+    tbody td:nth-last-child(2),
+    tbody td:nth-last-child(3),
+    tbody td:nth-last-child(4) {
+      text-align: right;
+    }
+
+    .footer-note {
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    @media (max-width: 1180px) {
+      .hero-grid,
+      .split-grid,
+      .donut-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .compare-shell {
+        grid-template-columns: 1fr;
+      }
+
+      .performance-grid,
+      .contribution-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .kpi-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .span-8,
+      .span-7,
+      .span-6,
+      .span-5,
+      .span-4,
+      .span-3 {
+        grid-column: span 12;
+      }
+
+      .panel-actions {
+        justify-items: start;
+        min-width: 0;
+      }
+
+      .hero-theme-row {
+        justify-content: flex-start;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .shell {
+        width: min(100% - 18px, 1380px);
+        padding-top: 18px;
+        padding-bottom: 28px;
+      }
+
+      .hero {
+        padding: 24px;
+      }
+
+      .kpi-grid,
+      .insights-grid,
+      .contribution-summary-grid,
+      .compare-kpis,
+      .compare-delta-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .type-row,
+      .position-row {
+        grid-template-columns: 1fr;
+      }
+
+      .value-block,
+      .share {
+        text-align: left;
+      }
+
+      .donut {
+        width: min(240px, 72vw);
+      }
+
+      .hero-caption {
+        position: static;
+        margin-top: 14px;
+        padding-top: 12px;
+        flex-direction: column;
+      }
+
+      .modal-grid {
+        grid-template-columns: 1fr;
+      }
+
+      th:nth-child(4),
+      th:nth-child(5),
+      td:nth-child(4),
+      td:nth-child(5) {
+        display: none;
+      }
+    }
+
+    html[data-theme="light"] .panel-head h2,
+    html[data-theme="light"] .panel-head p,
+    html[data-theme="light"] .compare-delta-head h3,
+    html[data-theme="light"] .compare-delta-head p,
+    html[data-theme="light"] .performance-panel h3,
+    html[data-theme="light"] .performance-panel p,
+    html[data-theme="light"] .contribution-panel h3,
+    html[data-theme="light"] .contribution-panel p {
+      color: #000000 !important;
+      -webkit-text-fill-color: #000000 !important;
+      opacity: 1 !important;
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <section class="hero">
+      <div class="hero-grid">
+        <div class="hero-main">
+          <div class="hero-copy">
+            <div class="hero-eyebrow">Patrimonio · Asset allocation · Performance</div>
+            <h1>Visualizador de activos y patrimonio</h1>
+            <div class="hero-divider"></div>
+            <p class="lead">
+              Análisis de tipo de activo, asset allocation y evolución del patrimonio de Denis Martín Barroso.
+            </p>
+            <div class="hero-highlights" aria-hidden="true">
+              <span class="hero-token">Enfoque patrimonial</span>
+              <span class="hero-token">Lectura histórica</span>
+              <span class="hero-token">Decisiones de asignación</span>
+            </div>
+          </div>
+        </div>
+        <div class="hero-side">
+          <div class="hero-theme-row">
+            <button class="theme-toggle" id="themeToggleButton" type="button" aria-pressed="false" title="Cambiar tema">
+              <span class="theme-icon" id="themeToggleIcon">☾</span>
+              <span class="theme-label" id="themeToggleLabel">Modo oscuro</span>
+            </button>
+          </div>
+          <aside class="control-card">
+            <h2>Exploración</h2>
+            <div class="control-stack">
+              <div class="selector">
+                <label for="snapshotSelect">Fecha del snapshot</label>
+                <select id="snapshotSelect"></select>
+              </div>
+              <div class="selector">
+                <label>Tipos incluidos</label>
+                <div class="filter-trigger">
+                  <button class="filter-button" id="openTypeFilterButton" type="button">
+                    <strong id="typeFilterButtonTitle">Seleccionar tipos</strong>
+                    <span id="typeFilterMeta">-</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div class="control-footer">
+              <div class="sync-row">
+                <button class="sync-button" id="refreshDataButton" type="button">Actualizar datos</button>
+                <div class="sync-status" id="refreshStatus">Esperando datos remotos.</div>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <div class="main-grid">
+      <section class="panel span-12">
+        <div class="kpi-grid" id="kpiGrid"></div>
+      </section>
+
+      <section class="panel span-8">
+        <div class="panel-head">
+          <div>
+            <h2>Trayectoria del patrimonio</h2>
+            <p class="muted">
+              Evolución histórica del patrimonio neto, con referencia adicional de capital invertido y deuda pendiente.
+            </p>
+          </div>
+          <div class="panel-actions">
+            <div class="toggle-row compact" id="chartModeToggle">
+              <button data-mode="grossAssets" type="button">Activos brutos</button>
+              <button class="active" data-mode="netWorth" type="button">Patrimonio neto</button>
+              <button data-mode="profit" type="button">Beneficio</button>
+            </div>
+            <div class="legend">
+              <span class="legend-item"><span class="swatch" style="background:#2ee6a6"></span>Serie principal</span>
+              <span class="legend-item"><span class="swatch" style="background:#65c7ff"></span>Capital invertido</span>
+              <span class="legend-item"><span class="swatch" style="background:#f8bf62"></span>Hipoteca</span>
+            </div>
+          </div>
+        </div>
+        <div class="chart-wrap">
+          <svg id="timelineChart" viewBox="0 0 960 360" preserveAspectRatio="none" aria-label="Gráfico de evolución patrimonial"></svg>
+          <div class="chart-tooltip" id="timelineTooltip"></div>
+        </div>
+      </section>
+
+      <section class="panel span-4">
+        <div class="panel-head">
+          <div>
+            <h2>Insights clave</h2>
+            <p class="muted">Lectura ejecutiva de concentración, liquidez y apalancamiento.</p>
+          </div>
+        </div>
+        <div class="insights-grid" id="insightsGrid"></div>
+      </section>
+
+      <section class="panel span-6">
+        <div class="panel-head">
+          <div>
+            <h2>Asignación por tipo</h2>
+            <p class="muted">Distribución sobre activos positivos del snapshot activo y lectura histórica del peso relativo por categoría.</p>
+          </div>
+          <div class="panel-actions">
+            <div class="toggle-row compact" id="allocationChartToggle">
+              <button data-mode="donut" type="button">Donut</button>
+              <button class="active" data-mode="treemap" type="button">Treemap</button>
+            </div>
+          </div>
+        </div>
+        <div class="donut-layout">
+          <div class="donut-shell">
+            <div class="donut" id="allocationDonut">
+              <svg class="donut-svg" id="allocationDonutSvg" viewBox="0 0 360 360" aria-hidden="true"></svg>
+              <div class="donut-tooltip" id="donutTooltip">
+                <strong>-</strong>
+                <span>-</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="allocation-trend">
+          <div class="allocation-trend-head">
+            <p class="allocation-trend-note">Lectura temporal del peso relativo de cada tipo en cada snapshot.</p>
+            <div class="selector compact">
+              <label for="allocationRangeSelect">Periodo</label>
+              <select id="allocationRangeSelect"></select>
+            </div>
+          </div>
+          <div class="allocation-trend-shell">
+            <svg id="allocationTrendChart" viewBox="0 0 960 248" preserveAspectRatio="none" aria-label="Distribución histórica apilada por tipo"></svg>
+            <div class="allocation-trend-tooltip" id="allocationTrendTooltip"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel span-6">
+        <div class="panel-head">
+          <div>
+            <h2>Top posiciones</h2>
+            <p class="muted">Mayor peso económico dentro del snapshot seleccionado.</p>
+          </div>
+        </div>
+        <div class="position-stack" id="topPositions"></div>
+      </section>
+
+      <section class="panel span-12">
+        <div class="panel-head">
+          <div>
+            <h2>Rentabilidad y performance</h2>
+          </div>
+          <div class="performance-actions">
+            <div class="selector compact">
+              <label for="performanceRangeSelect">Periodo</label>
+              <select id="performanceRangeSelect"></select>
+            </div>
+            <div class="selector compact">
+              <label>Activos</label>
+              <div class="filter-trigger">
+                <button class="filter-button" id="openPerformanceAssetFilterButton" type="button">
+                  <strong id="performanceAssetFilterButtonTitle">Seleccionar activos</strong>
+                  <span id="performanceAssetFilterMeta">-</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="performance-grid">
+          <div class="performance-panel">
+            <div class="performance-mini-stack">
+              <div class="performance-mini-card">
+                <div class="performance-mini-head">
+                  <span class="performance-mini-title">ROI histórico</span>
+                  <span class="performance-mini-value" id="performanceRoiCurrent">-</span>
+                </div>
+                <div class="performance-mini-wrap">
+                  <svg id="performanceRoiChart" viewBox="0 0 960 118" preserveAspectRatio="none" aria-label="Evolución histórica del ROI"></svg>
+                  <div class="chart-tooltip" id="performanceRoiTooltip"></div>
+                </div>
+              </div>
+              <div class="performance-mini-card">
+                <div class="performance-mini-head">
+                  <span class="performance-mini-title">Beneficio en euros</span>
+                  <span class="performance-mini-value" id="performanceProfitCurrent">-</span>
+                </div>
+                <div class="performance-mini-wrap">
+                  <svg id="performanceProfitChart" viewBox="0 0 960 118" preserveAspectRatio="none" aria-label="Evolución histórica del beneficio"></svg>
+                  <div class="chart-tooltip" id="performanceProfitTooltip"></div>
+                </div>
+              </div>
+              <div class="performance-mini-card">
+                <div class="performance-mini-head">
+                  <span class="performance-mini-title">% capital invertido</span>
+                  <span class="performance-mini-value" id="performanceInvestedShareCurrent">-</span>
+                </div>
+                <div class="performance-mini-wrap">
+                  <svg id="performanceInvestedShareChart" viewBox="0 0 960 118" preserveAspectRatio="none" aria-label="Evolución del peso del capital invertido"></svg>
+                  <div class="chart-tooltip" id="performanceInvestedShareTooltip"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="performance-panel">
+            <h3>Beneficio por tipo de activo</h3>
+            <p>Evolución del beneficio agregado por categoría con los filtros activos.</p>
+            <div class="performance-legend" id="performanceLegend"></div>
+            <div class="performance-chart-wrap">
+              <svg id="performanceTypeProfitChart" viewBox="0 0 960 332" preserveAspectRatio="none" aria-label="Beneficio histórico por tipo de activo"></svg>
+              <div class="chart-tooltip" id="performanceTypeTooltip"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel span-12">
+        <div class="panel-head">
+          <div>
+            <h2>Plan de aportaciones</h2>
+          </div>
+        </div>
+        <div class="contribution-grid">
+          <div class="contribution-panel">
+            <div class="contribution-panel-head">
+              <div>
+                <h3>Aportación mensual por activo</h3>
+                <p id="contributionPlanIntro">Distribución apilada por mes para ver dónde se concentra el esfuerzo de inversión recurrente.</p>
+              </div>
+              <span class="pill contribution-total-pill" id="contributionTotalPill">-</span>
+            </div>
+            <div class="performance-legend" id="contributionLegend"></div>
+            <div class="contribution-chart-wrap">
+              <svg id="contributionPlanChart" viewBox="0 0 960 332" preserveAspectRatio="none" aria-label="Plan mensual de aportaciones por activo"></svg>
+              <div class="chart-tooltip" id="contributionTooltip"></div>
+            </div>
+            <div class="contribution-split">
+              <div class="contribution-split-head">
+                <span class="contribution-split-title">Distribución mensual entre renta variable y renta fija</span>
+                <span class="pill" id="contributionSplitTotal">-</span>
+              </div>
+              <div class="contribution-split-bar" id="contributionSplitBar"></div>
+              <div class="contribution-split-legend" id="contributionSplitLegend"></div>
+            </div>
+          </div>
+          <div class="contribution-panel">
+            <h3>Resumen anual</h3>
+            <p id="contributionSummaryIntro">Totales y ranking de aportación para entender qué activos concentran el plan.</p>
+            <div class="contribution-summary-grid" id="contributionSummaryGrid"></div>
+            <div class="contribution-bars" id="contributionAssetBars"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel span-12">
+        <div class="panel-head">
+          <div>
+            <h2>Comparación de snapshots</h2>
+            <p class="muted">Selecciona dos fechas para contrastar patrimonio, aportación, liquidez y deuda bajo los filtros actuales.</p>
+          </div>
+        </div>
+        <div class="compare-shell">
+          <div class="compare-card">
+            <div class="selector">
+              <label for="compareLeftSelect">Snapshot base</label>
+              <select id="compareLeftSelect"></select>
+            </div>
+            <div class="compare-kpis" id="compareLeftMetrics"></div>
+          </div>
+          <div class="compare-delta">
+            <div class="compare-delta-head">
+              <h3>Comparativa</h3>
+              <p id="compareDeltaCaption">Entre dos snapshots seleccionados.</p>
+            </div>
+            <div class="compare-delta-grid" id="compareDeltaGrid"></div>
+          </div>
+          <div class="compare-card">
+            <div class="selector">
+              <label for="compareRightSelect">Snapshot final</label>
+              <select id="compareRightSelect"></select>
+            </div>
+            <div class="compare-kpis" id="compareRightMetrics"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel span-12">
+        <div class="panel-head">
+          <div>
+            <h2>Detalle de posiciones</h2>
+            <p class="muted">Vista completa del snapshot activo, con valor, aportación, beneficio y rentabilidad estimada.</p>
+          </div>
+        </div>
+        <div class="table-shell">
+          <table>
+            <thead>
+              <tr>
+                <th>Posición</th>
+                <th>Tipo</th>
+                <th>Valor</th>
+                <th>Aportación</th>
+                <th>Beneficio</th>
+                <th>Rentabilidad</th>
+              </tr>
+            </thead>
+            <tbody id="positionsTable"></tbody>
+          </table>
+        </div>
+        <p class="footer-note">
+          Generado desde <span id="sourceFile"></span>. Última regeneración: <span id="generatedAt"></span>.
+        </p>
+      </section>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="typeFilterModal" aria-hidden="true">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="typeFilterModalTitle">
+      <div class="modal-head">
+        <div>
+          <h2 id="typeFilterModalTitle">Tipos de activo</h2>
+        </div>
+        <div class="mini-actions">
+          <button class="mini-button compact" id="modalSelectAllTypesButton" type="button">Todos</button>
+          <button class="mini-button compact" id="modalClearTypesButton" type="button">Ninguno</button>
+        </div>
+      </div>
+      <div class="modal-grid" id="typeFilterOptions"></div>
+      <div class="modal-actions">
+        <div class="filter-meta" id="typeFilterDraftMeta">-</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="performanceAssetModal" aria-hidden="true">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="performanceAssetModalTitle">
+      <div class="modal-head">
+        <div>
+          <h2 id="performanceAssetModalTitle">Activos del gráfico de rentabilidad</h2>
+        </div>
+        <div class="mini-actions">
+          <button class="mini-button compact" id="performanceSelectAllAssetsButton" type="button">Todos</button>
+          <button class="mini-button compact" id="performanceClearAssetsButton" type="button">Ninguno</button>
+        </div>
+      </div>
+      <div class="modal-grid" id="performanceAssetOptions"></div>
+      <div class="modal-actions">
+        <div class="filter-meta" id="performanceAssetDraftMeta">-</div>
+      </div>
+    </div>
+  </div>
+
+  <script id="portfolio-data" type="application/json">{"generatedAt":"2026-05-02 20:33","sourceFile":"Google Sheets · Data","series":[],"snapshots":{},"dates":[],"latestDate":null,"latestPositions":[],"contributionPlan":{"yearLabel":null,"months":[],"assets":[],"totalMonthly":0,"totalAnnual":0,"totalMonthlyEquity":0,"totalMonthlyFixedIncome":0,"averageMonthly":0,"assetCount":0,"error":null}}</script>
+  <script>
+    let rawData = JSON.parse(document.getElementById("portfolio-data").textContent);
+    const state = {
+      selectedDate: rawData.latestDate,
+      compareLeftDate: null,
+      compareRightDate: null,
+      allocationRangeMonths: 54,
+      allocationChartMode: "treemap",
+      performanceRangeMonths: 36,
+      chartMode: "netWorth",
+      selectedTypes: null,
+      selectedAssets: null,
+      performanceSelectedAssets: null,
+      hasInitializedTypeSelection: false,
+      hasInitializedAssetSelection: false,
+      hasInitializedPerformanceAssetSelection: false,
+    };
+
+    const palette = ["#1fe0a5", "#4db7ff", "#ffbf47", "#ff7a7a", "#b38cff", "#ff5fa2", "#32d4ff", "#98e55e"];
+    let performanceOverviewCache = [];
+    let performanceTypeSeriesCache = [];
+    let performanceTypeDatesCache = [];
+
+    const formatCurrency = (value) =>
+      new Intl.NumberFormat("es-ES", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(value);
+
+    const formatPercent = (value) =>
+      new Intl.NumberFormat("es-ES", { style: "percent", minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(value);
+
+    const formatSignedCurrency = (value) => {
+      const formatted = new Intl.NumberFormat("es-ES", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(Math.abs(value));
+      return value >= 0 ? `+${formatted}` : `-${formatted}`;
+    };
+
+    const formatSignedPercent = (value) => {
+      if (!Number.isFinite(value)) {
+        return "n/a";
+      }
+      const formatted = new Intl.NumberFormat("es-ES", { style: "percent", minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(Math.abs(value));
+      return value >= 0 ? `+${formatted}` : `-${formatted}`;
+    };
+
+    function applyTheme(theme) {
+      const normalizedTheme = theme === "light" ? "light" : "dark";
+      document.documentElement.dataset.theme = normalizedTheme;
+      try {
+        localStorage.setItem("investment-theme", normalizedTheme);
+      } catch (error) {
+        console.warn("No se pudo guardar la preferencia de tema.", error);
+      }
+      const isLight = normalizedTheme === "light";
+      const button = document.getElementById("themeToggleButton");
+      const icon = document.getElementById("themeToggleIcon");
+      const label = document.getElementById("themeToggleLabel");
+      button.setAttribute("aria-pressed", isLight ? "true" : "false");
+      button.setAttribute("title", isLight ? "Cambiar a modo oscuro" : "Cambiar a modo claro");
+      icon.textContent = isLight ? "☀" : "☾";
+      label.textContent = isLight ? "Modo claro" : "Modo oscuro";
+    }
+
+    function applyPanelHeadingTheme() {
+      const isLight = document.documentElement.dataset.theme === "light";
+      const headingColor = isLight ? "#000000" : "";
+      const subtitleColor = isLight ? "#000000" : "";
+      document.querySelectorAll(".panel-head h2, .compare-delta-head h3, .performance-panel h3, .contribution-panel h3").forEach((node) => {
+        if (isLight) {
+          node.style.setProperty("color", headingColor, "important");
+          node.style.setProperty("-webkit-text-fill-color", headingColor, "important");
+          node.style.setProperty("opacity", "1", "important");
+        } else {
+          node.style.removeProperty("color");
+          node.style.removeProperty("-webkit-text-fill-color");
+          node.style.removeProperty("opacity");
+        }
+      });
+      document.querySelectorAll(".panel-head p, .compare-delta-head p, .performance-panel p, .contribution-panel p").forEach((node) => {
+        if (isLight) {
+          node.style.setProperty("color", subtitleColor, "important");
+          node.style.setProperty("-webkit-text-fill-color", subtitleColor, "important");
+          node.style.setProperty("opacity", "1", "important");
+        } else {
+          node.style.removeProperty("color");
+          node.style.removeProperty("-webkit-text-fill-color");
+          node.style.removeProperty("opacity");
+        }
+      });
+    }
+
+    function getChartTheme() {
+      const isLight = document.documentElement.dataset.theme === "light";
+      return isLight
+        ? {
+            grid: "rgba(43, 70, 97, 0.16)",
+            axis: "rgba(43, 70, 97, 0.72)",
+            axisSoft: "rgba(43, 70, 97, 0.58)",
+            axisStrong: "rgba(18, 40, 60, 0.88)",
+            zero: "rgba(43, 70, 97, 0.34)",
+            empty: "rgba(43, 70, 97, 0.74)",
+            track: "rgba(96, 122, 149, 0.16)",
+            timelinePrimary: "#0e9f6e",
+            timelineContribution: "#1877f2",
+            timelineDebt: "#d48a16",
+            timelineFillTop: "rgba(14, 159, 110, 0.24)",
+            timelineFillBottom: "rgba(14, 159, 110, 0.04)",
+          }
+        : {
+            grid: "rgba(255,255,255,0.08)",
+            axis: "rgba(214,226,238,0.58)",
+            axisSoft: "rgba(214,226,238,0.54)",
+            axisStrong: "rgba(214,226,238,0.86)",
+            zero: "rgba(255,255,255,0.16)",
+            empty: "rgba(214,226,238,0.68)",
+            track: "rgba(255,255,255,0.07)",
+            timelinePrimary: "#2ee6a6",
+            timelineContribution: "#65c7ff",
+            timelineDebt: "#f8bf62",
+            timelineFillTop: "rgba(46, 230, 166, 0.28)",
+            timelineFillBottom: "rgba(46, 230, 166, 0.02)",
+          };
+    }
+
+    let positionsByDate = rawData.snapshots || {};
+    let series = rawData.series || [];
+    let dateLabels = new Map((rawData.series || []).map((item) => [item.date, item.label]));
+
+    function getDateLabel(date) {
+      return dateLabels.get(date) || date;
+    }
+
+    function parseIsoDate(date) {
+      return new Date(`${date}T00:00:00Z`);
+    }
+
+    function shiftMonths(date, months) {
+      const shifted = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth() + months, date.getUTCDate()));
+      return shifted;
+    }
+
+    function getAllAssetNames() {
+      return [...new Set(Object.values(positionsByDate).flat().map((item) => item.name).filter(Boolean))]
+        .sort((left, right) => left.localeCompare(right, "es"));
+    }
+
+    function getAllTypes() {
+      return [...new Set(
+        Object.values(positionsByDate)
+          .flat()
+          .map((item) => item.type)
+          .filter(Boolean)
+      )].sort((left, right) => left.localeCompare(right, "es"));
+    }
+
+    function syncFilterState() {
+      const availableAssets = getAllAssetNames();
+      if (!state.hasInitializedAssetSelection && availableAssets.length) {
+        state.selectedAssets = [...availableAssets];
+        state.hasInitializedAssetSelection = true;
+      } else if (state.selectedAssets === null) {
+        state.selectedAssets = [...availableAssets];
+      } else {
+        const assetUniverse = new Set(availableAssets);
+        state.selectedAssets = state.selectedAssets.filter((asset) => assetUniverse.has(asset));
+      }
+
+      if (!state.hasInitializedPerformanceAssetSelection && availableAssets.length) {
+        const excludedByDefault = new Set(["Bravo Murillo 154", "Telefónica SAU", "Empleados de Telefónica"]);
+        state.performanceSelectedAssets = availableAssets.filter((asset) => !excludedByDefault.has(asset));
+        state.hasInitializedPerformanceAssetSelection = true;
+      } else if (state.performanceSelectedAssets === null) {
+        state.performanceSelectedAssets = [...availableAssets];
+      } else {
+        const performanceUniverse = new Set(availableAssets);
+        state.performanceSelectedAssets = state.performanceSelectedAssets.filter((asset) => performanceUniverse.has(asset));
+      }
+
+      const availableTypes = getAllTypes();
+      if (!state.hasInitializedTypeSelection && availableTypes.length) {
+        state.selectedTypes = [...availableTypes];
+        state.hasInitializedTypeSelection = true;
+      } else if (state.selectedTypes === null) {
+        state.selectedTypes = [...availableTypes];
+      } else {
+        const typeUniverse = new Set(availableTypes);
+        state.selectedTypes = state.selectedTypes.filter((type) => typeUniverse.has(type));
+      }
+
+      if (!rawData.dates.includes(state.selectedDate)) {
+        state.selectedDate = rawData.latestDate || rawData.dates[rawData.dates.length - 1] || null;
+      }
+
+      const latestDate = rawData.dates[rawData.dates.length - 1] || null;
+      const previousDate = rawData.dates[rawData.dates.length - 2] || latestDate;
+      if (!rawData.dates.includes(state.compareLeftDate)) {
+        state.compareLeftDate = previousDate;
+      }
+      if (!rawData.dates.includes(state.compareRightDate)) {
+        state.compareRightDate = latestDate;
+      }
+      if (!state.compareLeftDate) {
+        state.compareLeftDate = previousDate;
+      }
+      if (!state.compareRightDate) {
+        state.compareRightDate = latestDate;
+      }
+    }
+
+    function getSnapshot(date, options = {}) {
+      if (!date || !positionsByDate[date]) {
+        return [];
+      }
+      const { useTypeFilter = true, useAssetFilter = true } = options;
+      let rows = [...positionsByDate[date]];
+      if (useAssetFilter && state.selectedAssets !== null) {
+        const selectedAssets = new Set(state.selectedAssets);
+        rows = rows.filter((item) => selectedAssets.has(item.name));
+      }
+      if (useTypeFilter && state.selectedTypes !== null) {
+        const selectedTypes = new Set(state.selectedTypes);
+        rows = rows.filter((item) => selectedTypes.has(item.type));
+      }
+      return rows.sort((a, b) => b.value - a.value);
+    }
+
+    function aggregateSnapshot(date, options = {}) {
+      const positions = getSnapshot(date, options);
+      const positivePositions = positions.filter((item) => item.value > 0);
+      const liabilities = positions.filter((item) => item.value < 0);
+      const investedPositions = positivePositions.filter((item) => item.type !== "Cuentas Corrientes");
+      const grossAssets = positivePositions.reduce((sum, item) => sum + item.value, 0);
+      const debt = liabilities.reduce((sum, item) => sum + item.value, 0);
+      const netWorth = grossAssets + debt;
+      const contribution = investedPositions.reduce((sum, item) => sum + item.value, 0);
+      const contributionBase = investedPositions.reduce((sum, item) => sum + item.contribution, 0);
+      const profit = positions.reduce((sum, item) => sum + item.profit, 0);
+      const investedProfit = investedPositions.reduce((sum, item) => sum + item.profit, 0);
+      const roi = contributionBase ? investedProfit / contributionBase : 0;
+      const liquidity = positivePositions
+        .filter((item) => item.type === "Cuentas Corrientes")
+        .reduce((sum, item) => sum + item.value, 0);
+      return { positions, positivePositions, liabilities, grossAssets, debt, netWorth, contribution, contributionBase, profit, roi, liquidity };
+    }
+
+    function getActiveSeries() {
+      return rawData.dates.map((date) => {
+        const snapshot = aggregateSnapshot(date);
+        return {
+          date,
+          label: getDateLabel(date),
+          netWorth: snapshot.netWorth,
+          grossAssets: snapshot.grossAssets,
+          contribution: snapshot.contribution,
+          profit: snapshot.profit,
+          liabilities: Math.abs(snapshot.debt),
+        };
+      });
+    }
+
+    function getContributionPlanView() {
+      const plan = rawData.contributionPlan || {};
+      const baseAssets = Array.isArray(plan.assets) ? plan.assets : [];
+      const selectedTypes = new Set(state.selectedTypes || []);
+      const assets = baseAssets
+        .filter((asset) => !asset.type || !selectedTypes.size || selectedTypes.has(asset.type))
+        .map((asset) => ({
+          ...asset,
+          allocation: asset.allocation || "",
+          monthlyAmount: Number(asset.monthlyAmount || 0),
+          annualTotal: Number(asset.annualTotal || 0),
+          monthlyEquityAmount: Number(asset.monthlyEquityAmount || 0),
+          monthlyFixedAmount: Number(asset.monthlyFixedAmount || 0),
+        }))
+        .sort((left, right) => right.monthlyAmount - left.monthlyAmount);
+      const totalMonthly = assets.reduce((sum, asset) => sum + asset.monthlyAmount, 0);
+      const totalAnnual = assets.reduce((sum, asset) => sum + asset.annualTotal, 0);
+      const totalMonthlyEquity = assets.reduce((sum, asset) => sum + asset.monthlyEquityAmount, 0);
+      const totalMonthlyFixedIncome = assets.reduce((sum, asset) => sum + asset.monthlyFixedAmount, 0);
+      return {
+        yearLabel: plan.yearLabel || null,
+        error: plan.error || null,
+        assets,
+        months: [],
+        totalMonthly,
+        totalAnnual,
+        totalMonthlyEquity,
+        totalMonthlyFixedIncome,
+        averageMonthly: totalMonthly,
+      };
+    }
+
+    function buildSparkline(values, color) {
+      if (!values.length) {
+        return "";
+      }
+      const width = 220;
+      const height = 42;
+      const min = Math.min(...values);
+      const max = Math.max(...values);
+      const range = max - min || 1;
+      const points = values
+        .map((value, index) => {
+          const x = (index / Math.max(values.length - 1, 1)) * width;
+          const y = height - ((value - min) / range) * (height - 8) - 4;
+          return `${x.toFixed(2)},${y.toFixed(2)}`;
+        })
+        .join(" ");
+      return `
+        <svg class="sparkline" viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" aria-hidden="true">
+          <polyline fill="none" stroke="${color}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" points="${points}"></polyline>
+        </svg>
+      `;
+    }
+
+    function polarToCartesian(cx, cy, radius, angleInDegrees) {
+      const angleInRadians = (angleInDegrees - 90) * Math.PI / 180;
+      return {
+        x: cx + radius * Math.cos(angleInRadians),
+        y: cy + radius * Math.sin(angleInRadians),
+      };
+    }
+
+    function describeArc(cx, cy, radius, startAngle, endAngle) {
+      const start = polarToCartesian(cx, cy, radius, endAngle);
+      const end = polarToCartesian(cx, cy, radius, startAngle);
+      const largeArcFlag = endAngle - startAngle <= 180 ? "0" : "1";
+      return [
+        "M", start.x.toFixed(3), start.y.toFixed(3),
+        "A", radius, radius, 0, largeArcFlag, 0, end.x.toFixed(3), end.y.toFixed(3),
+      ].join(" ");
+    }
+
+    function describeDonutSlice(cx, cy, outerRadius, innerRadius, startAngle, endAngle) {
+      const outerStart = polarToCartesian(cx, cy, outerRadius, startAngle);
+      const outerEnd = polarToCartesian(cx, cy, outerRadius, endAngle);
+      const innerEnd = polarToCartesian(cx, cy, innerRadius, endAngle);
+      const innerStart = polarToCartesian(cx, cy, innerRadius, startAngle);
+      const largeArcFlag = endAngle - startAngle > 180 ? 1 : 0;
+      return [
+        "M", outerStart.x.toFixed(3), outerStart.y.toFixed(3),
+        "A", outerRadius, outerRadius, 0, largeArcFlag, 1, outerEnd.x.toFixed(3), outerEnd.y.toFixed(3),
+        "L", innerEnd.x.toFixed(3), innerEnd.y.toFixed(3),
+        "A", innerRadius, innerRadius, 0, largeArcFlag, 0, innerStart.x.toFixed(3), innerStart.y.toFixed(3),
+        "Z",
+      ].join(" ");
+    }
+
+    function getReadableTextColor(hex) {
+      const value = (hex || "").replace("#", "");
+      if (value.length !== 6) {
+        return "#f5fbff";
+      }
+      const red = Number.parseInt(value.slice(0, 2), 16);
+      const green = Number.parseInt(value.slice(2, 4), 16);
+      const blue = Number.parseInt(value.slice(4, 6), 16);
+      const luminance = (0.2126 * red + 0.7152 * green + 0.0722 * blue) / 255;
+      return luminance > 0.63 ? "#102132" : "#f5fbff";
+    }
+
+    function fitTreemapLabel(text, width) {
+      const safeText = String(text || "").trim();
+      if (!safeText) {
+        return "";
+      }
+      const maxChars = Math.max(5, Math.floor(width / 5.9));
+      if (safeText.length <= maxChars) {
+        return safeText;
+      }
+      return `${safeText.slice(0, Math.max(3, maxChars - 1)).trimEnd()}…`;
+    }
+
+    function wrapTreemapLabel(text, width, maxLines = 3) {
+      const safeText = String(text || "").trim();
+      if (!safeText) {
+        return [];
+      }
+      const maxChars = Math.max(5, Math.floor(width / 5.8));
+      const words = safeText.split(/\s+/).filter(Boolean);
+      const lines = [];
+      let currentLine = "";
+
+      const pushLine = (line) => {
+        if (!line) {
+          return;
+        }
+        if (lines.length < maxLines) {
+          lines.push(line);
+        }
+      };
+
+      words.forEach((word) => {
+        if (!currentLine) {
+          if (word.length <= maxChars) {
+            currentLine = word;
+            return;
+          }
+          let remaining = word;
+          while (remaining.length > maxChars && lines.length < maxLines - 1) {
+            pushLine(remaining.slice(0, maxChars));
+            remaining = remaining.slice(maxChars);
+          }
+          currentLine = remaining;
+          return;
+        }
+
+        const candidate = `${currentLine} ${word}`;
+        if (candidate.length <= maxChars) {
+          currentLine = candidate;
+          return;
+        }
+        pushLine(currentLine);
+        if (word.length <= maxChars) {
+          currentLine = word;
+          return;
+        }
+        let remaining = word;
+        while (remaining.length > maxChars && lines.length < maxLines - 1) {
+          pushLine(remaining.slice(0, maxChars));
+          remaining = remaining.slice(maxChars);
+        }
+        currentLine = remaining;
+      });
+
+      pushLine(currentLine);
+      if (!lines.length) {
+        return [fitTreemapLabel(safeText, width)];
+      }
+      if (lines.length > maxLines) {
+        lines.length = maxLines;
+      }
+      const lastIndex = lines.length - 1;
+      const originalWords = safeText.split(/\s+/).filter(Boolean);
+      if (lastIndex >= 0 && lines.join(" ") !== originalWords.join(" ")) {
+        lines[lastIndex] = fitTreemapLabel(lines[lastIndex], width);
+      }
+      return lines;
+    }
+
+    function layoutTreemap(items, x, y, width, height, depth = 0) {
+      if (!items.length || width <= 0 || height <= 0) {
+        return [];
+      }
+      if (items.length === 1) {
+        return [{ ...items[0], x, y, width, height }];
+      }
+
+      const total = items.reduce((sum, item) => sum + item.value, 0);
+      if (total <= 0) {
+        return [];
+      }
+
+      let running = 0;
+      let splitIndex = 0;
+      for (let index = 0; index < items.length; index += 1) {
+        running += items[index].value;
+        splitIndex = index;
+        if (running >= total / 2) {
+          break;
+        }
+      }
+
+      if (splitIndex >= items.length - 1) {
+        splitIndex = items.length - 2;
+        running = items.slice(0, splitIndex + 1).reduce((sum, item) => sum + item.value, 0);
+      }
+
+      const firstGroup = items.slice(0, splitIndex + 1);
+      const secondGroup = items.slice(splitIndex + 1);
+      const firstRatio = running / total;
+
+      if (depth % 2 === 0) {
+        const firstWidth = width * firstRatio;
+        return [
+          ...layoutTreemap(firstGroup, x, y, firstWidth, height, depth + 1),
+          ...layoutTreemap(secondGroup, x + firstWidth, y, width - firstWidth, height, depth + 1),
+        ];
+      }
+
+      const firstHeight = height * firstRatio;
+      return [
+        ...layoutTreemap(firstGroup, x, y, width, firstHeight, depth + 1),
+        ...layoutTreemap(secondGroup, x, y + firstHeight, width, height - firstHeight, depth + 1),
+      ];
+    }
+
+    function renderHeroMeta() {
+      const activeSeries = getActiveSeries();
+      const historyRangeNode = document.getElementById("historyRange");
+      if (activeSeries.length) {
+        const first = new Date(activeSeries[0].date);
+        const last = new Date(activeSeries[activeSeries.length - 1].date);
+        const dateFormat = new Intl.DateTimeFormat("es-ES", { month: "short", year: "numeric" });
+        if (historyRangeNode) {
+          historyRangeNode.textContent = `${dateFormat.format(first)} -> ${dateFormat.format(last)}`;
+        }
+      } else {
+        if (historyRangeNode) {
+          historyRangeNode.textContent = "Pendiente de carga";
+        }
+      }
+      const snapshotCountNode = document.getElementById("snapshotCount");
+      if (snapshotCountNode) {
+        snapshotCountNode.textContent = String(rawData.dates.length || 0);
+      }
+      const totalAssets = getAllAssetNames().length || 0;
+      const visibleAssets = state.selectedAssets?.length ?? totalAssets;
+      const assetCoverageNode = document.getElementById("assetCoverage");
+      if (assetCoverageNode) {
+        assetCoverageNode.textContent = totalAssets ? `${visibleAssets} / ${totalAssets}` : "0";
+      }
+      document.getElementById("sourceFile").textContent = rawData.sourceFile;
+      document.getElementById("generatedAt").textContent = rawData.generatedAt;
+    }
+
+    function renderTypeFilterSummary() {
+      const allTypes = getAllTypes();
+      const selected = new Set(state.selectedTypes || []);
+      document.getElementById("typeFilterButtonTitle").textContent = allTypes.length
+        ? `${selected.size} tipos activos`
+        : "Sin tipos disponibles";
+      document.getElementById("typeFilterMeta").textContent = allTypes.length
+        ? selected.size === allTypes.length
+          ? "Todas las categorías incluidas en el dashboard."
+          : "Pulsa para revisar qué categorías participan en los cálculos."
+        : "La conexión todavía no ha cargado tipos desde Google Sheets.";
+    }
+
+    function renderTypeFilterModal() {
+      const allTypes = getAllTypes();
+      const selected = new Set(state.selectedTypes || []);
+      document.getElementById("typeFilterDraftMeta").textContent = allTypes.length
+        ? `${selected.size} de ${allTypes.length} tipos seleccionados`
+        : "Sin tipos";
+      document.getElementById("typeFilterOptions").innerHTML = allTypes.length
+        ? allTypes
+            .map((type) => `
+              <button class="type-card${selected.has(type) ? " active" : ""}" data-type="${type}" type="button">
+                <strong>${type}</strong>
+                <span>${selected.has(type) ? "Incluido en todo el dashboard." : "Excluido del dashboard."}</span>
+              </button>
+            `)
+            .join("")
+        : `
+          <div class="type-row" style="grid-template-columns:1fr;">
+            <div class="type-main">
+              <div class="type-name">Sin tipos disponibles</div>
+              <div class="type-sub">La conexión todavía no ha cargado posiciones desde Google Sheets.</div>
+            </div>
+          </div>
+        `;
+    }
+
+    function renderPerformanceAssetFilterSummary() {
+      const allAssets = getAllAssetNames();
+      const selected = new Set(state.performanceSelectedAssets || []);
+      document.getElementById("performanceAssetFilterButtonTitle").textContent = allAssets.length
+        ? `${selected.size} activos`
+        : "Sin activos disponibles";
+      document.getElementById("performanceAssetFilterMeta").textContent = "";
+    }
+
+    function renderPerformanceAssetModal() {
+      const allAssets = getAllAssetNames();
+      const selected = new Set(state.performanceSelectedAssets || []);
+      document.getElementById("performanceAssetDraftMeta").textContent = allAssets.length
+        ? `${selected.size} de ${allAssets.length} activos seleccionados`
+        : "Sin activos";
+      document.getElementById("performanceAssetOptions").innerHTML = allAssets.length
+        ? allAssets
+            .map((asset) => `
+              <button class="type-card${selected.has(asset) ? " active" : ""}" data-performance-asset="${asset}" type="button">
+                <strong>${asset}</strong>
+                <span>${selected.has(asset) ? "Incluido en el gráfico histórico." : "Excluido del gráfico histórico."}</span>
+              </button>
+            `)
+            .join("")
+        : `
+          <div class="type-row" style="grid-template-columns:1fr;">
+            <div class="type-main">
+              <div class="type-name">Sin activos disponibles</div>
+              <div class="type-sub">La conexión todavía no ha cargado posiciones desde Google Sheets.</div>
+            </div>
+          </div>
+        `;
+    }
+
+    function renderSelector() {
+      const select = document.getElementById("snapshotSelect");
+      if (!rawData.dates.length) {
+        select.innerHTML = '<option value="">Sin datos remotos</option>';
+        select.disabled = true;
+        return;
+      }
+      select.disabled = false;
+      select.innerHTML = rawData.dates
+        .map((date) => {
+          const label = getDateLabel(date);
+          const selected = date === state.selectedDate ? " selected" : "";
+          return `<option value="${date}"${selected}>${label}</option>`;
+        })
+        .join("");
+    }
+
+    function getAllocationRangeOptions() {
+      if (!rawData.dates.length) {
+        return [{ value: "all", label: "Todo histórico" }];
+      }
+      const firstDate = parseIsoDate(rawData.dates[0]);
+      const lastDate = parseIsoDate(rawData.dates[rawData.dates.length - 1]);
+      const totalMonths = Math.max(0, (lastDate.getUTCFullYear() - firstDate.getUTCFullYear()) * 12 + (lastDate.getUTCMonth() - firstDate.getUTCMonth()));
+      const options = [{ value: "all", label: "Todo histórico" }];
+      for (let months = 6; months <= totalMonths; months += 6) {
+        options.push({
+          value: String(months),
+          label: `Últimos ${months} meses`,
+        });
+      }
+      if (options.length === 1 && rawData.dates.length > 1) {
+        options.push({ value: "6", label: "Últimos 6 meses" });
+      }
+      return options;
+    }
+
+    function getAllocationTrendDates() {
+      if (!rawData.dates.length || state.allocationRangeMonths === null) {
+        return rawData.dates;
+      }
+      const latest = parseIsoDate(rawData.dates[rawData.dates.length - 1]);
+      const cutoff = shiftMonths(latest, -state.allocationRangeMonths);
+      const filteredDates = rawData.dates.filter((date) => parseIsoDate(date) >= cutoff);
+      return filteredDates.length ? filteredDates : [rawData.dates[rawData.dates.length - 1]];
+    }
+
+    function renderAllocationRangeSelector() {
+      const select = document.getElementById("allocationRangeSelect");
+      const options = getAllocationRangeOptions();
+      const currentValue = state.allocationRangeMonths === null ? "all" : String(state.allocationRangeMonths);
+      if (options.some((option) => option.value === "54") && (state.allocationRangeMonths === null || !options.some((option) => option.value === currentValue))) {
+        state.allocationRangeMonths = 54;
+      } else if (!options.some((option) => option.value === currentValue)) {
+        state.allocationRangeMonths = null;
+      }
+      select.innerHTML = options
+        .map((option) => {
+          const selected = option.value === (state.allocationRangeMonths === null ? "all" : String(state.allocationRangeMonths)) ? " selected" : "";
+          return `<option value="${option.value}"${selected}>${option.label}</option>`;
+        })
+        .join("");
+      select.disabled = !rawData.dates.length;
+    }
+
+    function getPerformanceDates() {
+      if (!rawData.dates.length || state.performanceRangeMonths === null) {
+        return rawData.dates;
+      }
+      const latest = parseIsoDate(rawData.dates[rawData.dates.length - 1]);
+      const cutoff = shiftMonths(latest, -state.performanceRangeMonths);
+      const filteredDates = rawData.dates.filter((date) => parseIsoDate(date) >= cutoff);
+      return filteredDates.length ? filteredDates : [rawData.dates[rawData.dates.length - 1]];
+    }
+
+    function renderPerformanceRangeSelector() {
+      const select = document.getElementById("performanceRangeSelect");
+      const options = getAllocationRangeOptions();
+      const currentValue = state.performanceRangeMonths === null ? "all" : String(state.performanceRangeMonths);
+      if (!options.some((option) => option.value === currentValue)) {
+        state.performanceRangeMonths = options.some((option) => option.value === "36") ? 36 : null;
+      }
+      select.innerHTML = options
+        .map((option) => {
+          const selected = option.value === (state.performanceRangeMonths === null ? "all" : String(state.performanceRangeMonths)) ? " selected" : "";
+          return `<option value="${option.value}"${selected}>${option.label}</option>`;
+        })
+        .join("");
+      select.disabled = !rawData.dates.length;
+    }
+
+    function getPerformancePositions(date) {
+      const selectedPerformanceAssets = new Set(state.performanceSelectedAssets || []);
+      return getSnapshot(date).filter((item) => selectedPerformanceAssets.has(item.name));
+    }
+
+    function renderPerformanceBlock() {
+      const theme = getChartTheme();
+      const roiSvg = document.getElementById("performanceRoiChart");
+      const profitSvg = document.getElementById("performanceProfitChart");
+      const investedShareSvg = document.getElementById("performanceInvestedShareChart");
+      const typeProfitSvg = document.getElementById("performanceTypeProfitChart");
+      const legend = document.getElementById("performanceLegend");
+      const roiCurrent = document.getElementById("performanceRoiCurrent");
+      const profitCurrent = document.getElementById("performanceProfitCurrent");
+      const investedShareCurrent = document.getElementById("performanceInvestedShareCurrent");
+      const investedTypes = (state.selectedTypes || getAllTypes()).filter((type) => type && type !== "Cuentas Corrientes");
+      const dates = getPerformanceDates();
+      if (!dates.length || !investedTypes.length) {
+        [roiSvg, profitSvg, investedShareSvg, typeProfitSvg].forEach((node) => {
+          node.innerHTML = `
+            <text x="50%" y="50%" text-anchor="middle" fill="${theme.empty}" font-size="16">
+              Sin datos suficientes
+            </text>
+          `;
+        });
+        legend.innerHTML = "";
+        roiCurrent.textContent = "-";
+        profitCurrent.textContent = "-";
+        investedShareCurrent.textContent = "-";
+        performanceOverviewCache = [];
+        performanceTypeSeriesCache = [];
+        performanceTypeDatesCache = [];
+        return;
+      }
+
+      const typeColorMap = new Map();
+      investedTypes.forEach((type, index) => typeColorMap.set(type, palette[index % palette.length]));
+      const overview = dates.map((date) => {
+        const rows = getPerformancePositions(date);
+        const positivePositions = rows.filter((item) => item.value > 0);
+        const investedPositions = positivePositions.filter((item) => item.type !== "Cuentas Corrientes");
+        const grossAssets = positivePositions.reduce((sum, item) => sum + item.value, 0);
+        const investedValue = investedPositions.reduce((sum, item) => sum + item.value, 0);
+        const contributionBase = investedPositions.reduce((sum, item) => sum + item.contribution, 0);
+        const investedProfit = investedPositions.reduce((sum, item) => sum + item.profit, 0);
+        const profit = rows.reduce((sum, item) => sum + item.profit, 0);
+        return {
+          date,
+          label: getDateLabel(date),
+          roi: contributionBase ? investedProfit / contributionBase : 0,
+          profit,
+          investedShare: grossAssets ? investedValue / grossAssets : 0,
+        };
+      });
+      performanceOverviewCache = overview;
+      roiCurrent.textContent = formatPercent(overview[overview.length - 1]?.roi || 0);
+      profitCurrent.textContent = formatCurrency(overview[overview.length - 1]?.profit || 0);
+      investedShareCurrent.textContent = formatPercent(overview[overview.length - 1]?.investedShare || 0);
+
+      const typeProfitSeries = investedTypes.map((type) => {
+        const values = dates.map((date) =>
+          getPerformancePositions(date)
+            .filter((item) => item.type === type && item.value > 0)
+            .reduce((sum, item) => sum + item.profit, 0)
+        );
+        return { type, color: typeColorMap.get(type), values };
+      });
+      performanceTypeSeriesCache = typeProfitSeries;
+      performanceTypeDatesCache = dates;
+
+      legend.innerHTML = typeProfitSeries
+        .map((seriesItem) => `
+          <span class="legend-item">
+            <span class="swatch" style="background:${seriesItem.color}"></span>${seriesItem.type}
+          </span>
+        `)
+        .join("");
+
+      renderMiniLineChart({
+        svg: roiSvg,
+        values: overview.map((item) => item.roi),
+        labels: overview.map((item) => item.label),
+        rawDates: dates,
+        formatter: formatPercent,
+        color: "#2ee6a6",
+        dataKey: "roi",
+        showXAxis: false,
+      });
+      renderMiniBarChart({
+        svg: profitSvg,
+        values: overview.map((item) => item.profit),
+        labels: overview.map((item) => item.label),
+        rawDates: dates,
+        formatter: formatCurrency,
+        positiveColor: "#65c7ff",
+        negativeColor: "#ff7d7d",
+        dataKey: "profit",
+        showXAxis: false,
+      });
+      renderMiniLineChart({
+        svg: investedShareSvg,
+        values: overview.map((item) => item.investedShare),
+        labels: overview.map((item) => item.label),
+        rawDates: dates,
+        formatter: formatPercent,
+        color: "#f8bf62",
+        dataKey: "investedShare",
+        showXAxis: true,
+        minOverride: (() => {
+          const seriesValues = overview.map((item) => item.investedShare);
+          const localMin = Math.min(...seriesValues);
+          const localMax = Math.max(...seriesValues);
+          const spread = Math.max(localMax - localMin, 0.015);
+          return Math.max(0, localMin - spread * 0.3);
+        })(),
+        maxOverride: (() => {
+          const seriesValues = overview.map((item) => item.investedShare);
+          const localMin = Math.min(...seriesValues);
+          const localMax = Math.max(...seriesValues);
+          const spread = Math.max(localMax - localMin, 0.015);
+          return Math.min(1, localMax + spread * 0.3);
+        })(),
+        showZeroLine: false,
+      });
+
+      renderTypeProfitChart(typeProfitSvg, dates, typeProfitSeries, typeColorMap);
+    }
+
+    function renderContributionPlanBlock() {
+      const theme = getChartTheme();
+      const svg = document.getElementById("contributionPlanChart");
+      const legend = document.getElementById("contributionLegend");
+      const summaryGrid = document.getElementById("contributionSummaryGrid");
+      const bars = document.getElementById("contributionAssetBars");
+      const totalPill = document.getElementById("contributionTotalPill");
+      const intro = document.getElementById("contributionPlanIntro");
+      const summaryIntro = document.getElementById("contributionSummaryIntro");
+      const splitTotal = document.getElementById("contributionSplitTotal");
+      const splitBar = document.getElementById("contributionSplitBar");
+      const splitLegend = document.getElementById("contributionSplitLegend");
+      const plan = getContributionPlanView();
+
+      if (plan.error) {
+        intro.textContent = "No se ha podido interpretar la pestaña Plan de aportaciones.";
+      } else {
+        intro.textContent = "Plan recurrente por activo, ordenado por cuánto capital despliegas cada mes.";
+      }
+
+      if (!plan.assets.length) {
+        totalPill.textContent = "Sin plan cargado";
+        legend.innerHTML = "";
+        summaryIntro.textContent = plan.error || "Añade o completa la pestaña Plan de aportaciones para ver el plan mensual.";
+        summaryGrid.innerHTML = `
+          <div class="contribution-summary-card" style="grid-column:1 / -1;">
+            <span class="contribution-summary-label">Plan</span>
+            <span class="contribution-summary-value">-</span>
+            <span class="contribution-summary-note">${plan.error || "No hay meses o activos con aportaciones reconocibles."}</span>
+          </div>
+        `;
+        bars.innerHTML = "";
+        splitTotal.textContent = "-";
+        splitBar.innerHTML = "";
+        splitLegend.innerHTML = "";
+        svg.innerHTML = `
+          <text x="50%" y="50%" text-anchor="middle" fill="${theme.empty}" font-size="16">
+            Sin plan de aportaciones disponible
+          </text>
+        `;
+        return;
+      }
+
+      const typeOrder = [...new Set(plan.assets.map((asset) => asset.type).filter(Boolean))];
+      const typeColorMap = new Map();
+      typeOrder.forEach((type, index) => typeColorMap.set(type, palette[index % palette.length]));
+      legend.innerHTML = typeOrder
+        .map((type) => `
+          <span class="legend-item">
+            <span class="swatch" style="background:${typeColorMap.get(type)}"></span>${type}
+          </span>
+        `)
+        .join("");
+
+      totalPill.textContent = `Plan mensual ${formatCurrency(plan.totalMonthly)}`;
+      const topAsset = plan.assets[0] || null;
+      const typeRanking = [...plan.assets.reduce((map, asset) => {
+        const key = asset.type || "Sin tipo";
+        const entry = map.get(key) || { type: key, monthlyAmount: 0, annualTotal: 0 };
+        entry.monthlyAmount += asset.monthlyAmount;
+        entry.annualTotal += asset.annualTotal;
+        map.set(key, entry);
+        return map;
+      }, new Map()).values()].sort((left, right) => right.monthlyAmount - left.monthlyAmount);
+      const topType = typeRanking[0] || null;
+      summaryIntro.textContent = "";
+      summaryGrid.innerHTML = [
+        {
+          label: "Total mensual",
+          value: formatCurrency(plan.totalMonthly),
+          note: "Suma de las aportaciones recurrentes de todos los activos.",
+        },
+        {
+          label: "Total anual",
+          value: formatCurrency(plan.totalAnnual),
+          note: "Proyección anual si mantienes el mismo ritmo de aportación.",
+        },
+        {
+          label: "Activo principal",
+          value: topAsset ? formatCurrency(topAsset.monthlyAmount) : "-",
+          note: topAsset ? `${topAsset.name} al mes.` : "Sin activos planificados.",
+        },
+        {
+          label: "Tipo principal",
+          value: topType ? topType.type : "-",
+          note: topType ? `${formatCurrency(topType.monthlyAmount)} al mes.` : "Sin categorías planificadas.",
+        },
+      ].map((item) => `
+        <div class="contribution-summary-card">
+          <span class="contribution-summary-label">${item.label}</span>
+          <span class="contribution-summary-value">${item.value}</span>
+          <span class="contribution-summary-note">${item.note}</span>
+        </div>
+      `).join("");
+
+      const maxAnnual = Math.max(...plan.assets.map((asset) => asset.annualTotal), 1);
+      bars.innerHTML = plan.assets
+        .map((asset) => {
+          const widthRatio = Math.max((asset.annualTotal / maxAnnual) * 100, 2);
+          const share = plan.totalAnnual ? asset.annualTotal / plan.totalAnnual : 0;
+          return `
+            <div class="contribution-bar-row">
+              <div class="contribution-bar-head">
+                <span class="contribution-bar-name">${asset.name}</span>
+                <div class="contribution-bar-meta">
+                  <span class="pill">${formatPercent(share)}</span>
+                  <span class="contribution-bar-value">${formatCurrency(asset.annualTotal)}</span>
+                </div>
+              </div>
+              <div class="contribution-bar-track">
+                <div class="contribution-bar-fill" style="width:${widthRatio.toFixed(2)}%; background:${typeColorMap.get(asset.type) || palette[0]};"></div>
+              </div>
+            </div>
+          `;
+        })
+        .join("");
+
+      const equityShare = plan.totalMonthly ? plan.totalMonthlyEquity / plan.totalMonthly : 0;
+      const fixedShare = plan.totalMonthly ? plan.totalMonthlyFixedIncome / plan.totalMonthly : 0;
+      splitTotal.textContent = formatCurrency(plan.totalMonthly);
+      splitBar.innerHTML = `
+        <div class="contribution-split-segment equity" style="width:${(equityShare * 100).toFixed(2)}%"></div>
+        <div class="contribution-split-segment fixed" style="width:${(fixedShare * 100).toFixed(2)}%"></div>
+      `;
+      splitLegend.innerHTML = `
+        <div class="contribution-split-item">
+          <strong>Renta variable · ${formatPercent(equityShare)}</strong>
+          <span>${formatCurrency(plan.totalMonthlyEquity)} al mes</span>
+        </div>
+        <div class="contribution-split-item">
+          <strong>Renta fija · ${formatPercent(fixedShare)}</strong>
+          <span>${formatCurrency(plan.totalMonthlyFixedIncome)} al mes</span>
+        </div>
+      `;
+
+      const width = 960;
+      const height = 332;
+      const padding = { top: 18, right: 110, bottom: 18, left: 230 };
+      const chartWidth = width - padding.left - padding.right;
+      const chartHeight = height - padding.top - padding.bottom;
+      const rowGap = plan.assets.length > 8 ? 10 : 14;
+      const rowHeight = Math.max((chartHeight - rowGap * (plan.assets.length - 1)) / Math.max(plan.assets.length, 1), 18);
+      const maxMonthly = Math.max(...plan.assets.map((asset) => asset.monthlyAmount), 1);
+      const gridLines = [0, 0.25, 0.5, 0.75, 1].map((ratio) => {
+        const x = padding.left + ratio * chartWidth;
+        const value = maxMonthly * ratio;
+        return `
+          <g>
+            <line x1="${x.toFixed(2)}" y1="${padding.top}" x2="${x.toFixed(2)}" y2="${height - padding.bottom}" stroke="${theme.grid}" stroke-dasharray="4 8"></line>
+            <text x="${x.toFixed(2)}" y="${height - 4}" text-anchor="middle" fill="${theme.axis}" font-size="11">${formatCurrency(value)}</text>
+          </g>
+        `;
+      }).join("");
+
+      const barsMarkup = plan.assets.map((asset, index) => {
+        const y = padding.top + index * (rowHeight + rowGap);
+        const fillWidth = (asset.monthlyAmount / maxMonthly) * chartWidth;
+        return `
+          <g>
+            <text x="${(padding.left - 14).toFixed(2)}" y="${(y + rowHeight / 2 - 2).toFixed(2)}" text-anchor="end" fill="${theme.axisStrong}" font-size="12" font-weight="700">${asset.name}</text>
+            <rect x="${padding.left}" y="${y.toFixed(2)}" width="${chartWidth.toFixed(2)}" height="${rowHeight.toFixed(2)}" rx="999" fill="${theme.track}"></rect>
+            <rect
+              x="${padding.left}"
+              y="${y.toFixed(2)}"
+              width="${Math.max(fillWidth, 6).toFixed(2)}"
+              height="${rowHeight.toFixed(2)}"
+              rx="999"
+              fill="${typeColorMap.get(asset.type) || palette[0]}"
+              data-contribution-asset="${asset.name}"
+              data-contribution-type="${asset.type || ""}"
+              data-contribution-month="Aportación mensual"
+              data-contribution-amount="${asset.monthlyAmount}"
+              data-contribution-total="${asset.annualTotal}"
+            ></rect>
+            <text x="${(padding.left + fillWidth + 10).toFixed(2)}" y="${(y + rowHeight / 2 - 2).toFixed(2)}" fill="${theme.axisStrong}" font-size="12" font-weight="700">${formatCurrency(asset.monthlyAmount)}</text>
+          </g>
+        `;
+      }).join("");
+
+      svg.innerHTML = `
+        ${gridLines}
+        ${barsMarkup}
+      `;
+    }
+
+    function renderComparison() {
+      const compareDates = [...rawData.dates].reverse();
+      const leftSelect = document.getElementById("compareLeftSelect");
+      const rightSelect = document.getElementById("compareRightSelect");
+      if (!compareDates.length) {
+        leftSelect.innerHTML = '<option value="">Sin datos</option>';
+        rightSelect.innerHTML = '<option value="">Sin datos</option>';
+        leftSelect.disabled = true;
+        rightSelect.disabled = true;
+        document.getElementById("compareLeftMetrics").innerHTML = "";
+        document.getElementById("compareRightMetrics").innerHTML = "";
+        document.getElementById("compareDeltaGrid").innerHTML = "";
+        document.getElementById("compareDeltaCaption").textContent = "No hay snapshots para comparar.";
+        return;
+      }
+
+      leftSelect.disabled = false;
+      rightSelect.disabled = false;
+      const optionMarkup = compareDates
+        .map((date) => `<option value="${date}">${getDateLabel(date)}</option>`)
+        .join("");
+      leftSelect.innerHTML = optionMarkup;
+      rightSelect.innerHTML = optionMarkup;
+      leftSelect.value = state.compareLeftDate || compareDates[1] || compareDates[0];
+      rightSelect.value = state.compareRightDate || compareDates[0];
+
+      const leftDate = leftSelect.value;
+      const rightDate = rightSelect.value;
+      const left = aggregateSnapshot(leftDate);
+      const right = aggregateSnapshot(rightDate);
+      const snapshotMetrics = [
+        {
+          label: "Activos brutos",
+          key: "grossAssets",
+          note: () => "Sin descontar deuda",
+        },
+        {
+          label: "Patrimonio neto",
+          key: "netWorth",
+          note: () => "Activos menos deuda",
+        },
+        {
+          label: "Capital invertido",
+          key: "contribution",
+          note: (snapshot) => formatPercent(snapshot.grossAssets ? snapshot.contribution / snapshot.grossAssets : 0) + " del activo bruto",
+        },
+        {
+          label: "Beneficio",
+          key: "profit",
+          note: () => "Ganancia o pérdida.",
+        },
+        {
+          label: "Liquidez",
+          key: "liquidity",
+          note: () => "Saldo en cuentas.",
+        },
+        {
+          label: "Hipoteca",
+          key: "debtAbs",
+          note: () => "Deuda viva.",
+        },
+      ];
+      const deltaMetrics = [
+        { label: "Activos brutos", key: "grossAssets" },
+        { label: "Patrimonio neto", key: "netWorth" },
+        { label: "Capital invertido", key: "contribution" },
+        { label: "Beneficio", key: "profit" },
+        { label: "Liquidez", key: "liquidity" },
+        { label: "Hipoteca", key: "debtAbs" },
+      ];
+
+      const metricValue = (snapshot, key) => key === "debtAbs" ? Math.abs(snapshot.debt) : snapshot[key];
+      const renderMetricGrid = (snapshot) => snapshotMetrics
+        .map((metric) => `
+          <div class="compare-kpi">
+            <span class="compare-kpi-label">${metric.label}</span>
+            <span class="compare-kpi-value">${formatCurrency(metricValue(snapshot, metric.key))}</span>
+            <span class="compare-kpi-note">${metric.note(snapshot)}</span>
+          </div>
+        `)
+        .join("");
+
+      document.getElementById("compareLeftMetrics").innerHTML = renderMetricGrid(left);
+      document.getElementById("compareRightMetrics").innerHTML = renderMetricGrid(right);
+      document.getElementById("compareDeltaCaption").textContent = `${getDateLabel(leftDate)} frente a ${getDateLabel(rightDate)}`;
+      document.getElementById("compareDeltaGrid").innerHTML = deltaMetrics
+        .map((metric) => {
+          const leftValue = metricValue(left, metric.key);
+          const rightValue = metricValue(right, metric.key);
+          const delta = rightValue - leftValue;
+          const relative = leftValue ? delta / Math.abs(leftValue) : Number.NaN;
+          const toneClass = delta >= 0 ? "positive" : "negative";
+          return `
+            <div class="compare-delta-item">
+              <span class="compare-delta-label">${metric.label}</span>
+              <span class="compare-delta-value ${toneClass}">${formatSignedCurrency(delta)}</span>
+              <span class="compare-delta-note">${formatSignedPercent(relative)}</span>
+            </div>
+          `;
+        })
+        .join("");
+    }
+
+    function renderKpis() {
+      const activeSeries = getActiveSeries();
+      if (!activeSeries.length) {
+        document.getElementById("kpiGrid").innerHTML = ["Activos brutos", "Patrimonio neto", "Capital invertido", "Beneficio agregado"]
+          .map((label) => `
+            <article class="kpi-card">
+              <div>
+                <div class="kpi-label">${label}</div>
+                <div class="kpi-value">-</div>
+              </div>
+              <div class="kpi-foot"><span>Esperando a Google Sheets</span><span class="delta">--</span></div>
+            </article>
+          `)
+          .join("");
+        return;
+      }
+      const current = aggregateSnapshot(state.selectedDate);
+      const selectedIndex = rawData.dates.indexOf(state.selectedDate);
+      const prevDate = rawData.dates[Math.max(selectedIndex - 1, 0)];
+      const previous = aggregateSnapshot(prevDate);
+      const deltas = {
+        netWorth: current.netWorth - previous.netWorth,
+        grossAssets: current.grossAssets - previous.grossAssets,
+        contribution: current.contribution - previous.contribution,
+        profit: current.profit - previous.profit,
+      };
+
+      const sparkValues = {
+        netWorth: activeSeries.map((item) => item.netWorth),
+        grossAssets: activeSeries.map((item) => item.grossAssets),
+        contribution: activeSeries.map((item) => item.contribution),
+        profit: activeSeries.map((item) => item.profit),
+      };
+
+      const cards = [
+        {
+          label: "Activos brutos",
+          value: formatCurrency(current.grossAssets),
+          delta: deltas.grossAssets,
+          foot: "Sin descontar hipoteca",
+          color: "#65c7ff",
+          spark: sparkValues.grossAssets,
+        },
+        {
+          label: "Patrimonio neto",
+          value: formatCurrency(current.netWorth),
+          delta: deltas.netWorth,
+          foot: "Activos menos deuda",
+          color: "#2ee6a6",
+          spark: sparkValues.netWorth,
+        },
+        {
+          label: "Capital invertido",
+          value: formatCurrency(current.contribution),
+          delta: deltas.contribution,
+          foot: `${formatPercent(current.grossAssets ? current.contribution / current.grossAssets : 0)} sobre activos brutos`,
+          color: "#f8bf62",
+          spark: sparkValues.contribution,
+        },
+        {
+          label: "Beneficio agregado",
+          value: formatCurrency(current.profit),
+          delta: deltas.profit,
+          foot: `ROI estimado ${formatPercent(current.roi)}`,
+          color: "#ff8f6a",
+          spark: sparkValues.profit,
+        },
+      ];
+
+      document.getElementById("kpiGrid").innerHTML = cards
+        .map((card) => {
+          const deltaClass = card.delta >= 0 ? "positive" : "negative";
+          return `
+            <article class="kpi-card">
+              <div>
+                <div class="kpi-label">${card.label}</div>
+                <div class="kpi-value">${card.value}</div>
+              </div>
+              <div>
+                ${buildSparkline(card.spark, card.color)}
+                <div class="kpi-foot">
+                  <span>${card.foot}</span>
+                  <span class="delta ${deltaClass}">${formatSignedCurrency(card.delta)}</span>
+                </div>
+              </div>
+            </article>
+          `;
+        })
+        .join("");
+    }
+
+    function buildPath(values, width, height, padding, minValue, maxValue) {
+      const min = minValue ?? Math.min(...values);
+      const max = maxValue ?? Math.max(...values);
+      const range = max - min || 1;
+      return values.map((value, index) => {
+        const x = padding.left + (index / Math.max(values.length - 1, 1)) * (width - padding.left - padding.right);
+        const y = height - padding.bottom - ((value - min) / range) * (height - padding.top - padding.bottom);
+        return { x, y, value };
+      });
+    }
+
+    function buildSmoothLinePath(points) {
+      if (!points.length) {
+        return "";
+      }
+      if (points.length === 1) {
+        return `M ${points[0].x.toFixed(2)} ${points[0].y.toFixed(2)}`;
+      }
+      let path = `M ${points[0].x.toFixed(2)} ${points[0].y.toFixed(2)}`;
+      for (let index = 0; index < points.length - 1; index += 1) {
+        const p0 = points[index - 1] || points[index];
+        const p1 = points[index];
+        const p2 = points[index + 1];
+        const p3 = points[index + 2] || p2;
+        const cp1x = p1.x + (p2.x - p0.x) / 6;
+        const cp1y = p1.y + (p2.y - p0.y) / 6;
+        const cp2x = p2.x - (p3.x - p1.x) / 6;
+        const cp2y = p2.y - (p3.y - p1.y) / 6;
+        path += ` C ${cp1x.toFixed(2)} ${cp1y.toFixed(2)}, ${cp2x.toFixed(2)} ${cp2y.toFixed(2)}, ${p2.x.toFixed(2)} ${p2.y.toFixed(2)}`;
+      }
+      return path;
+    }
+
+    function renderMiniLineChart({ svg, values, labels, rawDates, formatter, color, dataKey, showXAxis, minOverride = null, maxOverride = null, showZeroLine = true }) {
+      const theme = getChartTheme();
+      const width = 960;
+      const height = 118;
+      const padding = { top: 12, right: 12, bottom: showXAxis ? 24 : 10, left: 10 };
+      const derivedMin = Math.min(0, ...values);
+      const derivedMax = Math.max(0, ...values);
+      const yMin = minOverride ?? (derivedMin === derivedMax ? derivedMin - 1 : derivedMin);
+      const yMax = maxOverride ?? (derivedMin === derivedMax ? derivedMax + 1 : derivedMax);
+      const points = buildPath(values, width, height, padding, yMin, yMax);
+      const path = buildSmoothLinePath(points);
+      const zeroY = height - padding.bottom - ((0 - yMin) / (yMax - yMin || 1)) * (height - padding.top - padding.bottom);
+      const labelStep = Math.max(1, Math.ceil(values.length / 5));
+      const xLabels = showXAxis
+        ? points
+            .filter((_, index) => index === 0 || index === points.length - 1 || index % labelStep === 0)
+            .map((point, index) => `<text x="${point.x.toFixed(2)}" y="${height - 6}" text-anchor="${index === 0 ? "start" : "middle"}" fill="${theme.axisSoft}" font-size="10">${labels[points.indexOf(point)]}</text>`)
+            .join("")
+        : "";
+      const hoverTargets = points.map((point, index) => {
+        const prevX = points[index - 1]?.x ?? padding.left;
+        const nextX = points[index + 1]?.x ?? (width - padding.right);
+        const startX = index === 0 ? padding.left : (prevX + point.x) / 2;
+        const endX = index === points.length - 1 ? width - padding.right : (point.x + nextX) / 2;
+        return `
+          <rect
+            x="${startX.toFixed(2)}"
+            y="${padding.top}"
+            width="${Math.max(endX - startX, 14).toFixed(2)}"
+            height="${(height - padding.top - padding.bottom).toFixed(2)}"
+            fill="transparent"
+            data-performance-mini-index="${index}"
+            data-performance-mini-key="${dataKey}"
+            data-performance-mini-date="${rawDates[index]}"
+            data-performance-mini-label="${labels[index]}"
+            data-performance-mini-value="${values[index]}"
+          ></rect>
+        `;
+      }).join("");
+
+      svg.innerHTML = `
+        ${showZeroLine ? `<line x1="${padding.left}" y1="${zeroY.toFixed(2)}" x2="${(width - padding.right).toFixed(2)}" y2="${zeroY.toFixed(2)}" stroke="${theme.zero}" stroke-width="1.2"></line>` : ""}
+        <path d="${path}" fill="none" stroke="${color}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path>
+        <circle cx="${points[points.length - 1]?.x.toFixed(2) || 0}" cy="${points[points.length - 1]?.y.toFixed(2) || 0}" r="4" fill="${color}"></circle>
+        ${hoverTargets}
+        ${xLabels}
+      `;
+    }
+
+    function renderMiniBarChart({ svg, values, labels, rawDates, formatter, positiveColor, negativeColor, dataKey, showXAxis }) {
+      const theme = getChartTheme();
+      const width = 960;
+      const height = 118;
+      const padding = { top: 12, right: 12, bottom: showXAxis ? 24 : 10, left: 10 };
+      const minValue = Math.min(0, ...values);
+      const maxValue = Math.max(0, ...values);
+      const yMin = minValue === maxValue ? minValue - 1 : minValue;
+      const yMax = minValue === maxValue ? maxValue + 1 : maxValue;
+      const zeroY = height - padding.bottom - ((0 - yMin) / (yMax - yMin || 1)) * (height - padding.top - padding.bottom);
+      const chartWidth = width - padding.left - padding.right;
+      const barGap = values.length > 18 ? 6 : 10;
+      const barWidth = Math.max((chartWidth - barGap * (values.length - 1)) / Math.max(values.length, 1), 8);
+      const labelStep = Math.max(1, Math.ceil(values.length / 5));
+      const xLabels = showXAxis
+        ? values
+            .map((_, index) => index)
+            .filter((index) => index === 0 || index === values.length - 1 || index % labelStep === 0)
+            .map((index) => {
+              const x = padding.left + index * (barWidth + barGap) + barWidth / 2;
+              return `<text x="${x.toFixed(2)}" y="${height - 6}" text-anchor="middle" fill="${theme.axisSoft}" font-size="10">${labels[index]}</text>`;
+            })
+            .join("")
+        : "";
+      const bars = values.map((value, index) => {
+        const x = padding.left + index * (barWidth + barGap);
+        const y = value >= 0
+          ? height - padding.bottom - ((value - yMin) / (yMax - yMin || 1)) * (height - padding.top - padding.bottom)
+          : zeroY;
+        const topY = value >= 0 ? y : zeroY;
+        const bottomY = value >= 0 ? zeroY : height - padding.bottom - ((value - yMin) / (yMax - yMin || 1)) * (height - padding.top - padding.bottom);
+        const rectHeight = Math.max(Math.abs(bottomY - topY), 3);
+        return `
+          <rect
+            x="${x.toFixed(2)}"
+            y="${Math.min(topY, bottomY).toFixed(2)}"
+            width="${barWidth.toFixed(2)}"
+            height="${rectHeight.toFixed(2)}"
+            rx="6"
+            fill="${value >= 0 ? positiveColor : negativeColor}"
+            data-performance-mini-index="${index}"
+            data-performance-mini-key="${dataKey}"
+            data-performance-mini-date="${rawDates[index]}"
+            data-performance-mini-label="${labels[index]}"
+            data-performance-mini-value="${value}"
+          ></rect>
+        `;
+      }).join("");
+      svg.innerHTML = `
+        <line x1="${padding.left}" y1="${zeroY.toFixed(2)}" x2="${(width - padding.right).toFixed(2)}" y2="${zeroY.toFixed(2)}" stroke="${theme.zero}" stroke-width="1.2"></line>
+        ${bars}
+        ${xLabels}
+      `;
+    }
+
+    function renderTypeProfitChart(svg, dates, seriesItems, typeColorMap) {
+      const theme = getChartTheme();
+      const width = 960;
+      const height = 332;
+      const padding = { top: 18, right: 24, bottom: 34, left: 44 };
+      const values = seriesItems.flatMap((item) => item.values);
+      const minValue = Math.min(0, ...values);
+      const maxValue = Math.max(0, ...values);
+      const yMin = minValue === maxValue ? minValue - 1 : minValue;
+      const yMax = minValue === maxValue ? maxValue + 1 : maxValue;
+      const zeroY = height - padding.bottom - ((0 - yMin) / (yMax - yMin || 1)) * (height - padding.top - padding.bottom);
+      const gridLines = [0, 0.25, 0.5, 0.75, 1].map((step) => {
+        const value = yMin + (yMax - yMin) * step;
+        const y = height - padding.bottom - ((value - yMin) / (yMax - yMin || 1)) * (height - padding.top - padding.bottom);
+        return `
+          <g>
+            <line x1="${padding.left}" y1="${y.toFixed(2)}" x2="${(width - padding.right).toFixed(2)}" y2="${y.toFixed(2)}" stroke="${theme.grid}" stroke-dasharray="4 8"></line>
+            <text x="${(padding.left - 8).toFixed(2)}" y="${(y + 4).toFixed(2)}" text-anchor="end" fill="${theme.axis}" font-size="11">${formatCurrency(value)}</text>
+          </g>
+        `;
+      }).join("");
+      const xLabels = dates
+        .map((date, index) => { return { date, index }; })
+        .filter((entry, index, array) => index === 0 || index === array.length - 1 || index % Math.max(1, Math.ceil(array.length / 6)) === 0)
+        .map((entry) => {
+          const x = padding.left + (entry.index / Math.max(dates.length - 1, 1)) * (width - padding.left - padding.right);
+          return `<text x="${x.toFixed(2)}" y="${height - 8}" text-anchor="middle" fill="${theme.axis}" font-size="11">${getDateLabel(entry.date)}</text>`;
+        })
+        .join("");
+      const lineMarkup = seriesItems.map((seriesItem) => {
+        const points = buildPath(seriesItem.values, width, height, padding, yMin, yMax);
+        const path = buildSmoothLinePath(points);
+        return `
+          <path d="${path}" fill="none" stroke="${seriesItem.color}" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" opacity="0.96"></path>
+          <circle cx="${points[points.length - 1]?.x.toFixed(2) || 0}" cy="${points[points.length - 1]?.y.toFixed(2) || 0}" r="4" fill="${seriesItem.color}"></circle>
+        `;
+      }).join("");
+      const hoverTargets = dates.map((date, index) => {
+        const x = padding.left + (index / Math.max(dates.length - 1, 1)) * (width - padding.left - padding.right);
+        const prevX = index === 0 ? padding.left : padding.left + ((index - 1) / Math.max(dates.length - 1, 1)) * (width - padding.left - padding.right);
+        const nextX = index === dates.length - 1 ? width - padding.right : padding.left + ((index + 1) / Math.max(dates.length - 1, 1)) * (width - padding.left - padding.right);
+        const targetWidth = Math.max((nextX - prevX) / 2, 18);
+        return `<rect x="${(x - targetWidth / 2).toFixed(2)}" y="${padding.top}" width="${targetWidth.toFixed(2)}" height="${height - padding.top - padding.bottom}" fill="transparent" data-performance-type-index="${index}"></rect>`;
+      }).join("");
+
+      svg.innerHTML = `
+        ${gridLines}
+        <line x1="${padding.left}" y1="${zeroY.toFixed(2)}" x2="${(width - padding.right).toFixed(2)}" y2="${zeroY.toFixed(2)}" stroke="${theme.zero}" stroke-width="1.4"></line>
+        ${lineMarkup}
+        ${hoverTargets}
+        ${xLabels}
+      `;
+    }
+
+    function renderTimeline() {
+      const theme = getChartTheme();
+      const svg = document.getElementById("timelineChart");
+      const tooltip = document.getElementById("timelineTooltip");
+      const activeSeries = getActiveSeries();
+      const hasSignal = activeSeries.some((item) => item.grossAssets || item.netWorth || item.contribution || item.profit || item.liabilities);
+      if (!activeSeries.length || !hasSignal) {
+        tooltip.classList.remove("is-visible");
+        svg.innerHTML = `
+          <text x="50%" y="50%" text-anchor="middle" fill="${theme.empty}" font-size="18">
+            Sin datos para los filtros activos
+          </text>
+        `;
+        return;
+      }
+      const width = 960;
+      const height = 360;
+      const padding = { top: 20, right: 18, bottom: 42, left: 18 };
+      const primaryValues = activeSeries.map((point) => point[state.chartMode]);
+      const contributionValues = activeSeries.map((point) => point.contribution);
+      const debtValues = activeSeries.map((point) => Math.abs(point.liabilities));
+      const yMin = Math.min(...primaryValues, ...contributionValues, ...debtValues);
+      const yMax = Math.max(...primaryValues, ...contributionValues, ...debtValues);
+      const yRange = yMax - yMin || 1;
+      const primaryPath = buildPath(primaryValues, width, height, padding, yMin, yMax);
+      const contributionPath = buildPath(contributionValues, width, height, padding, yMin, yMax);
+      const debtPath = buildPath(debtValues, width, height, padding, yMin, yMax);
+      const makePoints = (points) => points.map((point) => `${point.x.toFixed(2)},${point.y.toFixed(2)}`).join(" ");
+      const areaPoints = `${padding.left},${height - padding.bottom} ${makePoints(primaryPath)} ${width - padding.right},${height - padding.bottom}`;
+
+      const gridLines = Array.from({ length: 4 }, (_, index) => {
+        const ratio = index / 3;
+        const y = padding.top + ratio * (height - padding.top - padding.bottom);
+        const value = yMax - ratio * yRange;
+        return `
+          <g>
+            <line x1="${padding.left}" y1="${y.toFixed(2)}" x2="${width - padding.right}" y2="${y.toFixed(2)}" stroke="${theme.grid}" stroke-dasharray="4 8" />
+            <text x="${width - padding.right}" y="${(y - 8).toFixed(2)}" text-anchor="end" fill="${theme.axis}" font-size="11">${formatCurrency(value)}</text>
+          </g>
+        `;
+      }).join("");
+
+      const xLabels = primaryPath
+        .filter((_, index) => index === 0 || index === primaryPath.length - 1 || index % Math.ceil(primaryPath.length / 5) === 0)
+        .map((point, index) => `
+          <text x="${point.x.toFixed(2)}" y="${height - 10}" text-anchor="${index === 0 ? "start" : "middle"}" fill="${theme.axis}" font-size="11">${activeSeries[primaryPath.indexOf(point)].label}</text>
+        `)
+        .join("");
+
+      const hoverTargets = primaryPath
+        .map((point, index) => {
+          const prevX = primaryPath[index - 1]?.x ?? padding.left;
+          const nextX = primaryPath[index + 1]?.x ?? (width - padding.right);
+          const startX = index === 0 ? padding.left : (prevX + point.x) / 2;
+          const endX = index === primaryPath.length - 1 ? (width - padding.right) : (point.x + nextX) / 2;
+          const rectWidth = Math.max(endX - startX, 18);
+          return `
+            <rect
+              class="timeline-hit"
+              data-index="${index}"
+              x="${startX.toFixed(2)}"
+              y="${padding.top}"
+              width="${rectWidth.toFixed(2)}"
+              height="${(height - padding.top - padding.bottom).toFixed(2)}"
+              fill="transparent"
+            ></rect>
+          `;
+        })
+        .join("");
+
+      svg.innerHTML = `
+        <defs>
+          <linearGradient id="primaryFill" x1="0%" x2="0%" y1="0%" y2="100%">
+            <stop offset="0%" stop-color="${theme.timelineFillTop}"></stop>
+            <stop offset="100%" stop-color="${theme.timelineFillBottom}"></stop>
+          </linearGradient>
+        </defs>
+        ${gridLines}
+        <polygon points="${areaPoints}" fill="url(#primaryFill)"></polygon>
+        <polyline fill="none" stroke="${theme.timelinePrimary}" stroke-width="4.6" stroke-linecap="round" stroke-linejoin="round" points="${makePoints(primaryPath)}"></polyline>
+        <polyline fill="none" stroke="${theme.timelineContribution}" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round" opacity="0.98" points="${makePoints(contributionPath)}"></polyline>
+        <polyline fill="none" stroke="${theme.timelineDebt}" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round" opacity="0.9" points="${makePoints(debtPath)}"></polyline>
+        ${primaryPath.map((point, index) => `
+          <g>
+            <circle cx="${point.x.toFixed(2)}" cy="${point.y.toFixed(2)}" r="3.8" fill="${theme.timelinePrimary}"></circle>
+          </g>
+        `).join("")}
+        ${hoverTargets}
+        ${xLabels}
+      `;
+    }
+
+    function renderInsights() {
+      const current = aggregateSnapshot(state.selectedDate);
+      const topHolding = current.positivePositions[0];
+      const topShare = topHolding ? topHolding.value / Math.max(current.grossAssets, 1) : 0;
+      const debtRatio = Math.abs(current.debt) / Math.max(current.grossAssets, 1);
+      const bestProfit = [...current.positivePositions].sort((a, b) => b.profit - a.profit)[0];
+      const insights = [
+        {
+          tag: "Liquidez",
+          value: formatCurrency(current.liquidity),
+          text: "Saldo disponible en cuentas corrientes y efectivo.",
+        },
+        {
+          tag: "Concentración",
+          value: topHolding ? formatPercent(topShare) : "-",
+          text: topHolding ? `${topHolding.name} es la posición con más peso.` : "Sin posiciones positivas.",
+        },
+        {
+          tag: "Apalancamiento",
+          value: formatPercent(debtRatio),
+          text: current.debt ? "Ratio de deuda frente a activos brutos." : "No hay pasivos registrados en este snapshot.",
+        },
+        {
+          tag: "Ganador",
+          value: bestProfit ? formatCurrency(bestProfit.profit) : "-",
+          text: bestProfit ? `${bestProfit.name} lidera el beneficio acumulado.` : "Sin datos de beneficio.",
+        },
+      ];
+      document.getElementById("insightsGrid").innerHTML = insights
+        .map((item) => `
+          <div class="insight">
+            <span class="tag">${item.tag}</span>
+            <strong>${item.value}</strong>
+            <div class="muted">${item.text}</div>
+          </div>
+        `)
+        .join("");
+    }
+
+    function renderAllocation() {
+      const baseSnapshot = aggregateSnapshot(state.selectedDate, { useTypeFilter: false });
+      const activeTypes = new Set(state.selectedTypes || []);
+      const donutSvg = document.getElementById("allocationDonutSvg");
+      const donutTooltip = document.getElementById("donutTooltip");
+      const allocationShell = document.getElementById("allocationDonut");
+      const grouped = baseSnapshot.positivePositions.reduce((map, item) => {
+        const existing = map.get(item.type) || { type: item.type, value: 0, contribution: 0, profit: 0 };
+        existing.value += item.value;
+        existing.contribution += item.contribution;
+        existing.profit += item.profit;
+        map.set(item.type, existing);
+        return map;
+      }, new Map());
+
+      const items = [...grouped.values()].sort((a, b) => b.value - a.value);
+      if (!items.length) {
+        donutSvg.innerHTML = "";
+        donutTooltip.classList.remove("is-visible");
+        return;
+      }
+      items.forEach((item, index) => {
+        item.share = item.value / Math.max(baseSnapshot.grossAssets, 1);
+        item.color = palette[index % palette.length];
+      });
+      const visibleItems = items.filter((item) => activeTypes.has(item.type));
+      const visibleTotal = Math.max(visibleItems.reduce((sum, item) => sum + item.value, 0), 1);
+      if (!visibleItems.length) {
+        allocationShell.classList.toggle("is-treemap", state.allocationChartMode === "treemap");
+        donutSvg.innerHTML = `
+          <text x="50%" y="50%" text-anchor="middle" fill="${getChartTheme().empty}" font-size="16">
+            Sin tipos activos para mostrar
+          </text>
+        `;
+        donutTooltip.classList.remove("is-visible");
+        return;
+      }
+
+      visibleItems.forEach((item) => {
+        item.activeShare = item.value / visibleTotal;
+      });
+
+      if (state.allocationChartMode === "treemap") {
+        allocationShell.classList.add("is-treemap");
+        donutSvg.setAttribute("viewBox", "0 0 520 366");
+        const frameX = 12;
+        const frameY = 12;
+        const frameWidth = 496;
+        const frameHeight = 342;
+        const frameRadius = 30;
+        const frameGap = 3;
+        const treemapItems = layoutTreemap(visibleItems, frameX, frameY, frameWidth, frameHeight)
+          .map((item) => {
+            const innerX = item.x + frameGap;
+            const innerY = item.y + frameGap;
+            const innerWidth = Math.max(item.width - frameGap * 2, 0);
+            const innerHeight = Math.max(item.height - frameGap * 2, 0);
+            return {
+              ...item,
+              innerX,
+              innerY,
+              innerWidth,
+              innerHeight,
+            };
+          })
+          .filter((item) => item.innerWidth > 8 && item.innerHeight > 8);
+
+        donutSvg.innerHTML = `
+          <rect x="${frameX}" y="${frameY}" width="${frameWidth}" height="${frameHeight}" rx="${frameRadius}" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.06)"></rect>
+          ${treemapItems.map((item) => {
+            const labelColor = getReadableTextColor(item.color);
+            const showTitle = item.innerWidth > 58 && item.innerHeight > 32;
+            const showShare = item.innerWidth > 56 && item.innerHeight > 42;
+            const labelX = item.innerX + 14;
+            const titleY = item.innerY + 22;
+            const titleLines = showTitle ? wrapTreemapLabel(item.type, item.innerWidth - 24, item.innerHeight > 98 ? 3 : 2) : [];
+            const nameBlockHeight = titleLines.length ? titleLines.length * 12 : 0;
+            const shareY = item.innerY + Math.max(28, 18 + nameBlockHeight + 8);
+            return `
+              <g data-type="${item.type}">
+                <rect
+                  class="donut-slice"
+                  data-type="${item.type}"
+                  data-share="${item.activeShare}"
+                  data-value="${item.value}"
+                  x="${item.innerX.toFixed(2)}"
+                  y="${item.innerY.toFixed(2)}"
+                  width="${item.innerWidth.toFixed(2)}"
+                  height="${item.innerHeight.toFixed(2)}"
+                  rx="${Math.max(10, Math.min(22, Math.min(item.innerWidth, item.innerHeight) * 0.12)).toFixed(2)}"
+                  fill="${item.color}"
+                ></rect>
+                ${showTitle || showShare ? `
+                  <g class="treemap-label" fill="${labelColor}">
+                    ${showTitle ? `
+                      <text class="treemap-label-title" x="${labelX.toFixed(2)}" y="${titleY.toFixed(2)}">
+                        ${titleLines.map((line, lineIndex) => `<tspan x="${labelX.toFixed(2)}" dy="${lineIndex === 0 ? 0 : 12}">${line}</tspan>`).join("")}
+                      </text>
+                    ` : ""}
+                    ${showShare ? `<text class="treemap-label-share" x="${labelX.toFixed(2)}" y="${shareY.toFixed(2)}">${formatPercent(item.activeShare)}</text>` : ""}
+                  </g>
+                ` : ""}
+              </g>
+            `;
+          }).join("")}
+        `;
+        donutTooltip.classList.remove("is-visible");
+        return;
+      }
+
+      allocationShell.classList.remove("is-treemap");
+      donutSvg.setAttribute("viewBox", "0 0 360 360");
+      const centerX = 180;
+      const centerY = 180;
+      const outerRadius = 148;
+      const innerRadius = 88;
+      const labelRadius = 118;
+      let cursor = -90;
+      const arcs = visibleItems
+        .map((item) => {
+          const startAngle = cursor;
+          const sweepAngle = item.activeShare * 360;
+          cursor += sweepAngle;
+          const endAngle = cursor;
+          const midAngle = startAngle + sweepAngle / 2;
+          const labelPoint = polarToCartesian(centerX, centerY, labelRadius, midAngle);
+          return {
+            ...item,
+            startAngle,
+            endAngle,
+            midAngle,
+            labelX: labelPoint.x,
+            labelY: labelPoint.y,
+          };
+        })
+        .filter((item) => item.endAngle > item.startAngle);
+
+      donutSvg.innerHTML = `
+        <circle class="donut-shell-base" cx="${centerX}" cy="${centerY}" r="${outerRadius}"></circle>
+        <circle class="donut-shell-core" cx="${centerX}" cy="${centerY}" r="${innerRadius}"></circle>
+        ${arcs.map((item) => `
+          <g data-type="${item.type}">
+            <path
+              class="donut-slice"
+              data-type="${item.type}"
+              data-share="${item.activeShare}"
+              data-value="${item.value}"
+              d="${describeDonutSlice(centerX, centerY, outerRadius, innerRadius, item.startAngle, item.endAngle)}"
+              fill="${item.color}"
+            ></path>
+            ${item.activeShare >= 0.075 ? `
+              <text
+                class="donut-slice-label"
+                x="${item.labelX.toFixed(2)}"
+                y="${item.labelY.toFixed(2)}"
+                fill="${getReadableTextColor(item.color)}"
+              >${formatPercent(item.activeShare)}</text>
+            ` : ""}
+          </g>
+        `).join("")}
+      `;
+      donutTooltip.classList.remove("is-visible");
+    }
+
+    function renderAllocationTrend() {
+      const theme = getChartTheme();
+      const svg = document.getElementById("allocationTrendChart");
+      const activeTypes = state.selectedTypes || [];
+      const typeColorMap = new Map();
+      getAllTypes().forEach((type, index) => typeColorMap.set(type, palette[index % palette.length]));
+      const trendDates = getAllocationTrendDates();
+
+      if (!trendDates.length || !activeTypes.length) {
+        svg.innerHTML = `
+          <text x="50%" y="50%" text-anchor="middle" fill="${theme.empty}" font-size="16">
+            Sin tipos activos para mostrar evolución
+          </text>
+        `;
+        return;
+      }
+
+      const width = 960;
+      const height = 248;
+      const padding = { top: 14, right: 18, bottom: 34, left: 42 };
+      const chartWidth = width - padding.left - padding.right;
+      const chartHeight = height - padding.top - padding.bottom;
+      const barGap = trendDates.length > 18 ? 6 : 10;
+      const barWidth = Math.max((chartWidth - barGap * (trendDates.length - 1)) / Math.max(trendDates.length, 1), 10);
+      const typeOrder = activeTypes.filter((type) => typeColorMap.has(type));
+
+      const snapshots = trendDates.map((date) => {
+        const snapshot = aggregateSnapshot(date);
+        const total = Math.max(snapshot.grossAssets, 1);
+        const valuesByType = new Map();
+        snapshot.positivePositions.forEach((item) => {
+          valuesByType.set(item.type, (valuesByType.get(item.type) || 0) + item.value);
+        });
+        return {
+          date,
+          label: getDateLabel(date),
+          total,
+          valuesByType,
+        };
+      });
+
+      const gridLines = [0, 0.25, 0.5, 0.75, 1].map((ratio) => {
+        const y = padding.top + (1 - ratio) * chartHeight;
+        return `
+          <g>
+            <line x1="${padding.left}" y1="${y.toFixed(2)}" x2="${width - padding.right}" y2="${y.toFixed(2)}" stroke="${theme.grid}" stroke-dasharray="4 8"></line>
+            <text x="${(padding.left - 8).toFixed(2)}" y="${(y + 4).toFixed(2)}" text-anchor="end" fill="${theme.axis}" font-size="11">${formatPercent(ratio)}</text>
+          </g>
+        `;
+      }).join("");
+
+      const labelStep = Math.max(1, Math.ceil(trendDates.length / 6));
+      const xLabels = trendDates
+        .map((date, index) => { return { date, index }; })
+        .filter((entry, index, array) => index === 0 || index === array.length - 1 || index % labelStep === 0)
+        .map((index) => {
+          const x = padding.left + index.index * (barWidth + barGap) + (barWidth / 2);
+          return `<text x="${x.toFixed(2)}" y="${height - 8}" text-anchor="middle" fill="${theme.axis}" font-size="11">${getDateLabel(index.date)}</text>`;
+        })
+        .join("");
+
+      const bars = snapshots.map((snapshot, index) => {
+        const x = padding.left + index * (barWidth + barGap);
+        let cursorY = padding.top + chartHeight;
+        const rects = typeOrder.map((type) => {
+          const share = (snapshot.valuesByType.get(type) || 0) / snapshot.total;
+          if (share <= 0) {
+            return "";
+          }
+          const segmentHeight = share * chartHeight;
+          cursorY -= segmentHeight;
+          return `
+            <rect
+              x="${x.toFixed(2)}"
+              y="${cursorY.toFixed(2)}"
+              width="${barWidth.toFixed(2)}"
+              height="${Math.max(segmentHeight, 0).toFixed(2)}"
+              fill="${typeColorMap.get(type) || palette[0]}"
+              opacity="0.94"
+              data-type="${type}"
+              data-date="${snapshot.date}"
+              data-label="${snapshot.label}"
+              data-share="${share}"
+              data-value="${snapshot.valuesByType.get(type) || 0}"
+            ></rect>
+          `;
+        }).join("");
+        return rects;
+      }).join("");
+
+      svg.innerHTML = `
+        ${gridLines}
+        ${bars}
+        ${xLabels}
+      `;
+    }
+
+    function renderTopPositions() {
+      const current = aggregateSnapshot(state.selectedDate);
+      const baseSnapshot = aggregateSnapshot(state.selectedDate, { useAssetFilter: false });
+      const activeAssets = new Set(state.selectedAssets || []);
+      const base = baseSnapshot.positivePositions.slice(0, 8);
+      if (!base.length) {
+        document.getElementById("topPositions").innerHTML = `
+          <div class="position-row" style="grid-template-columns:1fr;">
+            <div class="position-main">
+              <div class="position-name">Sin posiciones cargadas</div>
+              <div class="position-sub">Activa la conexión con Google Sheets para rellenar esta sección.</div>
+            </div>
+          </div>
+        `;
+        return;
+      }
+      document.getElementById("topPositions").innerHTML = base
+        .map((item) => {
+          const share = item.value / Math.max(baseSnapshot.grossAssets, 1);
+          const roi = item.contribution ? item.profit / item.contribution : 0;
+          const roiClass = roi >= 0 ? "positive" : "negative";
+          return `
+            <div class="position-row${activeAssets.has(item.name) ? "" : " is-off"}">
+              <div class="position-main">
+                <div class="position-name">${item.name}</div>
+                <div class="position-sub">${item.type} · ${formatPercent(share)} de la cartera positiva</div>
+                <div class="bar-track" style="margin-top:10px;">
+                  <div class="bar-fill" style="width:${(share * 100).toFixed(2)}%"></div>
+                </div>
+              </div>
+              <div class="value-block">
+                <span class="pill share-pill">${formatPercent(share)}</span>
+                <span>${formatCurrency(item.value)}</span>
+              </div>
+              <div class="share">
+                <span class="pill ${roiClass}">${formatPercent(roi)}</span>
+                <button
+                  class="switch${activeAssets.has(item.name) ? " active" : ""}"
+                  data-asset="${item.name}"
+                  data-active="${activeAssets.has(item.name) ? "true" : "false"}"
+                  aria-pressed="${activeAssets.has(item.name) ? "true" : "false"}"
+                  aria-label="Incluir ${item.name} en el dashboard"
+                  title="${activeAssets.has(item.name) ? "Incluido en el dashboard" : "Excluido del dashboard"}"
+                  type="button"
+                ></button>
+              </div>
+            </div>
+          `;
+        })
+        .join("");
+    }
+
+    function renderTable() {
+      const rows = aggregateSnapshot(state.selectedDate).positions;
+      if (!rows.length) {
+        document.getElementById("positionsTable").innerHTML = `
+          <tr>
+            <td colspan="6">
+              <div class="position-name">Sin datos cargados</div>
+              <div class="position-sub">El dashboard espera la respuesta de la API privada de Google Sheets.</div>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+      document.getElementById("positionsTable").innerHTML = rows
+        .map((item) => {
+          const roi = item.contribution ? item.profit / item.contribution : 0;
+          const roiClass = roi >= 0 ? "positive" : "negative";
+          return `
+            <tr>
+              <td>
+                <div class="position-name">${item.name}</div>
+                <div class="position-sub">${item.isin || "Sin ISIN"}${item.ter ? ` · TER ${item.ter.toFixed(2).replace(".", ",")}%` : ""}</div>
+              </td>
+              <td>${item.type}</td>
+              <td>${formatCurrency(item.value)}</td>
+              <td>${formatCurrency(item.contribution)}</td>
+              <td class="${item.profit >= 0 ? "positive" : "negative"}">${formatCurrency(item.profit)}</td>
+              <td class="${roiClass}">${item.contribution ? formatPercent(roi) : "n/a"}</td>
+            </tr>
+          `;
+        })
+        .join("");
+    }
+
+    function attachChartModeToggle() {
+      document.getElementById("chartModeToggle").addEventListener("click", (event) => {
+        const button = event.target.closest("button[data-mode]");
+        if (!button) {
+          return;
+        }
+        state.chartMode = button.dataset.mode;
+        [...document.querySelectorAll("#chartModeToggle button")].forEach((node) => {
+          node.classList.toggle("active", node === button);
+        });
+        renderTimeline();
+      });
+    }
+
+    function attachAllocationChartToggle() {
+      document.getElementById("allocationChartToggle").addEventListener("click", (event) => {
+        const button = event.target.closest("button[data-mode]");
+        if (!button) {
+          return;
+        }
+        state.allocationChartMode = button.dataset.mode;
+        [...document.querySelectorAll("#allocationChartToggle button")].forEach((node) => {
+          node.classList.toggle("active", node === button);
+        });
+        renderAllocation();
+      });
+    }
+
+    function attachThemeToggle() {
+      document.getElementById("themeToggleButton").addEventListener("click", () => {
+        const nextTheme = document.documentElement.dataset.theme === "light" ? "dark" : "light";
+        applyTheme(nextTheme);
+        renderAll();
+      });
+    }
+
+    function openTypeFilterModal() {
+      renderTypeFilterModal();
+      document.getElementById("typeFilterModal").classList.add("is-open");
+      document.getElementById("typeFilterModal").setAttribute("aria-hidden", "false");
+    }
+
+    function closeTypeFilterModal() {
+      document.getElementById("typeFilterModal").classList.remove("is-open");
+      document.getElementById("typeFilterModal").setAttribute("aria-hidden", "true");
+    }
+
+    function openPerformanceAssetModal() {
+      renderPerformanceAssetModal();
+      document.getElementById("performanceAssetModal").classList.add("is-open");
+      document.getElementById("performanceAssetModal").setAttribute("aria-hidden", "false");
+    }
+
+    function closePerformanceAssetModal() {
+      document.getElementById("performanceAssetModal").classList.remove("is-open");
+      document.getElementById("performanceAssetModal").setAttribute("aria-hidden", "true");
+    }
+
+    function attachTypeFilterModal() {
+      document.getElementById("openTypeFilterButton").addEventListener("click", () => {
+        openTypeFilterModal();
+      });
+
+      document.getElementById("typeFilterModal").addEventListener("click", (event) => {
+        if (event.target.id === "typeFilterModal") {
+          closeTypeFilterModal();
+        }
+      });
+
+      document.getElementById("typeFilterOptions").addEventListener("click", (event) => {
+        const button = event.target.closest("button[data-type]");
+        if (!button) {
+          return;
+        }
+        const selected = new Set(state.selectedTypes || []);
+        if (selected.has(button.dataset.type)) {
+          selected.delete(button.dataset.type);
+        } else {
+          selected.add(button.dataset.type);
+        }
+        state.selectedTypes = [...selected];
+        syncFilterState();
+        renderAll();
+        renderTypeFilterModal();
+      });
+
+      document.getElementById("modalSelectAllTypesButton").addEventListener("click", () => {
+        state.selectedTypes = getAllTypes();
+        syncFilterState();
+        renderAll();
+        renderTypeFilterModal();
+      });
+
+      document.getElementById("modalClearTypesButton").addEventListener("click", () => {
+        state.selectedTypes = [];
+        syncFilterState();
+        renderAll();
+        renderTypeFilterModal();
+      });
+
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") {
+          closeTypeFilterModal();
+          closePerformanceAssetModal();
+        }
+      });
+    }
+
+    function attachPerformanceAssetModal() {
+      document.getElementById("openPerformanceAssetFilterButton").addEventListener("click", () => {
+        openPerformanceAssetModal();
+      });
+
+      document.getElementById("performanceAssetModal").addEventListener("click", (event) => {
+        if (event.target.id === "performanceAssetModal") {
+          closePerformanceAssetModal();
+        }
+      });
+
+      document.getElementById("performanceAssetOptions").addEventListener("click", (event) => {
+        const button = event.target.closest("button[data-performance-asset]");
+        if (!button) {
+          return;
+        }
+        const selected = new Set(state.performanceSelectedAssets || []);
+        if (selected.has(button.dataset.performanceAsset)) {
+          selected.delete(button.dataset.performanceAsset);
+        } else {
+          selected.add(button.dataset.performanceAsset);
+        }
+        state.performanceSelectedAssets = [...selected];
+        renderPerformanceAssetFilterSummary();
+        renderPerformanceBlock();
+        renderPerformanceAssetModal();
+      });
+
+      document.getElementById("performanceSelectAllAssetsButton").addEventListener("click", () => {
+        state.performanceSelectedAssets = getAllAssetNames();
+        renderPerformanceAssetFilterSummary();
+        renderPerformanceBlock();
+        renderPerformanceAssetModal();
+      });
+
+      document.getElementById("performanceClearAssetsButton").addEventListener("click", () => {
+        state.performanceSelectedAssets = [];
+        renderPerformanceAssetFilterSummary();
+        renderPerformanceBlock();
+        renderPerformanceAssetModal();
+      });
+    }
+
+    function attachAssetFilters() {
+      document.getElementById("topPositions").addEventListener("click", (event) => {
+        const button = event.target.closest("button[data-asset]");
+        if (!button) {
+          return;
+        }
+        const activeAssets = new Set(state.selectedAssets || []);
+        if (activeAssets.has(button.dataset.asset)) {
+          activeAssets.delete(button.dataset.asset);
+        } else {
+          activeAssets.add(button.dataset.asset);
+        }
+        state.selectedAssets = [...activeAssets];
+        syncFilterState();
+        renderAll();
+      });
+    }
+
+    function attachAllocationTooltip() {
+      const donutSvg = document.getElementById("allocationDonutSvg");
+      const donutTooltip = document.getElementById("donutTooltip");
+      const getShape = (event) => event.target.closest("path[data-type], rect[data-type]");
+
+      donutSvg.addEventListener("pointerover", (event) => {
+        const slice = getShape(event);
+        if (!slice) {
+          return;
+        }
+        const type = slice.dataset.type;
+        const share = Number(slice.dataset.share || 0);
+        const value = Number(slice.dataset.value || 0);
+        donutTooltip.querySelector("strong").textContent = type;
+        donutTooltip.querySelector("span").textContent = `${formatPercent(share)} · ${formatCurrency(value)}`;
+        donutTooltip.classList.add("is-visible");
+        [...donutSvg.querySelectorAll(".donut-slice")].forEach((node) => {
+          node.classList.toggle("active", node === slice);
+          node.classList.toggle("dimmed", node !== slice);
+        });
+      });
+
+      donutSvg.addEventListener("pointerout", (event) => {
+        const leavingSlice = getShape(event);
+        if (!leavingSlice) {
+          return;
+        }
+        const related = event.relatedTarget && event.relatedTarget.closest ? event.relatedTarget.closest("path[data-type], rect[data-type]") : null;
+        if (related) {
+          return;
+        }
+        donutTooltip.classList.remove("is-visible");
+        [...donutSvg.querySelectorAll(".donut-slice")].forEach((node) => {
+          node.classList.remove("active", "dimmed");
+        });
+      });
+    }
+
+    function attachAllocationTrendTooltip() {
+      const svg = document.getElementById("allocationTrendChart");
+      const shell = svg.parentElement;
+      const tooltip = document.getElementById("allocationTrendTooltip");
+
+      svg.addEventListener("pointermove", (event) => {
+        const target = event.target.closest("rect[data-type]");
+        if (!target) {
+          tooltip.classList.remove("is-visible");
+          return;
+        }
+        const type = target.dataset.type;
+        const label = target.dataset.label;
+        const share = Number(target.dataset.share || 0);
+        const value = Number(target.dataset.value || 0);
+        tooltip.innerHTML = `
+          <strong>${type}</strong>
+          <span>${label}</span>
+          <span>${formatPercent(share)} · ${formatCurrency(value)}</span>
+        `;
+        const shellRect = shell.getBoundingClientRect();
+        tooltip.style.left = `${event.clientX - shellRect.left}px`;
+        tooltip.style.top = `${event.clientY - shellRect.top}px`;
+        tooltip.classList.add("is-visible");
+      });
+
+      svg.addEventListener("pointerleave", () => {
+        tooltip.classList.remove("is-visible");
+      });
+    }
+
+    function attachPerformanceTooltip() {
+      const attachMiniTooltip = (svgId, tooltipId, label) => {
+        const svg = document.getElementById(svgId);
+        const tooltip = document.getElementById(tooltipId);
+        svg.addEventListener("pointermove", (event) => {
+          const target = event.target.closest("[data-performance-mini-index]");
+          if (!target) {
+            tooltip.classList.remove("is-visible");
+            return;
+          }
+          const index = Number(target.dataset.performanceMiniIndex);
+          const point = performanceOverviewCache[index];
+          if (!point) {
+            tooltip.classList.remove("is-visible");
+            return;
+          }
+          const formatter = target.dataset.performanceMiniKey === "profit" ? formatCurrency : formatPercent;
+          tooltip.innerHTML = `
+            <strong>${point.label}</strong>
+            <div class="chart-tooltip-line">
+              <span class="chart-tooltip-label">${label}</span>
+              <span>${formatter(Number(target.dataset.performanceMiniValue || 0))}</span>
+            </div>
+          `;
+          const rect = svg.getBoundingClientRect();
+          tooltip.style.left = `${Math.max(60, Math.min(event.clientX - rect.left, rect.width - 60))}px`;
+          tooltip.style.top = `${Math.max(34, event.clientY - rect.top)}px`;
+          tooltip.classList.add("is-visible");
+        });
+        svg.addEventListener("pointerleave", () => {
+          tooltip.classList.remove("is-visible");
+        });
+      };
+
+      attachMiniTooltip("performanceRoiChart", "performanceRoiTooltip", "ROI");
+      attachMiniTooltip("performanceProfitChart", "performanceProfitTooltip", "Beneficio");
+      attachMiniTooltip("performanceInvestedShareChart", "performanceInvestedShareTooltip", "% capital invertido");
+
+      const typeSvg = document.getElementById("performanceTypeProfitChart");
+      const typeTooltip = document.getElementById("performanceTypeTooltip");
+      typeSvg.addEventListener("pointermove", (event) => {
+        const target = event.target.closest("[data-performance-type-index]");
+        if (!target) {
+          typeTooltip.classList.remove("is-visible");
+          return;
+        }
+        const index = Number(target.dataset.performanceTypeIndex);
+        const date = performanceTypeDatesCache[index];
+        if (!date) {
+          typeTooltip.classList.remove("is-visible");
+          return;
+        }
+        const rows = performanceTypeSeriesCache
+          .map((item) => ({
+            type: item.type,
+            color: item.color,
+            value: item.values[index] ?? 0,
+          }))
+          .filter((item) => Math.abs(item.value) > 0.01)
+          .sort((left, right) => right.value - left.value);
+        typeTooltip.innerHTML = `
+          <strong>${getDateLabel(date)}</strong>
+          ${rows.map((item) => `
+            <div class="chart-tooltip-line">
+              <span class="chart-tooltip-label"><span class="chart-tooltip-dot" style="background:${item.color}"></span>${item.type}</span>
+              <span>${formatCurrency(item.value)}</span>
+            </div>
+          `).join("")}
+        `;
+        const rect = typeSvg.getBoundingClientRect();
+        typeTooltip.style.left = `${Math.max(60, Math.min(event.clientX - rect.left, rect.width - 60))}px`;
+        typeTooltip.style.top = `${Math.max(40, event.clientY - rect.top)}px`;
+        typeTooltip.classList.add("is-visible");
+      });
+      typeSvg.addEventListener("pointerleave", () => {
+        typeTooltip.classList.remove("is-visible");
+      });
+    }
+
+    function attachContributionTooltip() {
+      const svg = document.getElementById("contributionPlanChart");
+      const tooltip = document.getElementById("contributionTooltip");
+
+      svg.addEventListener("pointermove", (event) => {
+        const target = event.target.closest("[data-contribution-asset]");
+        if (!target) {
+          tooltip.classList.remove("is-visible");
+          return;
+        }
+        const asset = target.dataset.contributionAsset;
+        const type = target.dataset.contributionType;
+        const month = target.dataset.contributionMonth;
+        const amount = Number(target.dataset.contributionAmount || 0);
+        const total = Number(target.dataset.contributionTotal || 0);
+        tooltip.innerHTML = `
+          <strong>${asset}</strong>
+          <div class="chart-tooltip-line">
+            <span class="chart-tooltip-label">${month}</span>
+            <span>${formatCurrency(amount)}</span>
+          </div>
+          <div class="chart-tooltip-line">
+            <span class="chart-tooltip-label">${type || "Activo"}</span>
+            <span>${formatCurrency(total)} al año</span>
+          </div>
+        `;
+        const rect = svg.getBoundingClientRect();
+        tooltip.style.left = `${Math.max(60, Math.min(event.clientX - rect.left, rect.width - 60))}px`;
+        tooltip.style.top = `${Math.max(40, event.clientY - rect.top)}px`;
+        tooltip.classList.add("is-visible");
+      });
+
+      svg.addEventListener("pointerleave", () => {
+        tooltip.classList.remove("is-visible");
+      });
+    }
+
+    function attachTimelineTooltip() {
+      const svg = document.getElementById("timelineChart");
+      const tooltip = document.getElementById("timelineTooltip");
+      const modeLabels = {
+        netWorth: "Patrimonio neto",
+        grossAssets: "Activos brutos",
+        profit: "Beneficio",
+      };
+      const modeColors = {
+        netWorth: "#2ee6a6",
+        grossAssets: "#65c7ff",
+        profit: "#ff8f6a",
+      };
+
+      svg.addEventListener("pointermove", (event) => {
+        const target = event.target.closest("[data-index]");
+        if (!target) {
+          return;
+        }
+        const index = Number(target.dataset.index);
+        const activeSeries = getActiveSeries();
+        const point = activeSeries[index];
+        if (!point) {
+          return;
+        }
+
+        tooltip.innerHTML = `
+          <strong>${point.label}</strong>
+          <div class="chart-tooltip-line">
+            <span class="chart-tooltip-label"><span class="chart-tooltip-dot" style="background:${modeColors[state.chartMode]}"></span>${modeLabels[state.chartMode]}</span>
+            <span>${formatCurrency(point[state.chartMode])}</span>
+          </div>
+          <div class="chart-tooltip-line">
+            <span class="chart-tooltip-label"><span class="chart-tooltip-dot" style="background:#65c7ff"></span>Capital invertido</span>
+            <span>${formatCurrency(point.contribution)}</span>
+          </div>
+          <div class="chart-tooltip-line">
+            <span class="chart-tooltip-label"><span class="chart-tooltip-dot" style="background:#f8bf62"></span>Hipoteca</span>
+            <span>${formatCurrency(point.liabilities)}</span>
+          </div>
+        `;
+
+        const rect = svg.getBoundingClientRect();
+        const relativeX = event.clientX - rect.left;
+        const relativeY = event.clientY - rect.top;
+        tooltip.style.left = `${Math.max(48, Math.min(relativeX, rect.width - 48))}px`;
+        tooltip.style.top = `${Math.max(36, relativeY)}px`;
+        tooltip.classList.add("is-visible");
+      });
+
+      svg.addEventListener("pointerleave", () => {
+        tooltip.classList.remove("is-visible");
+      });
+    }
+
+    function applyPayload(payload) {
+      const previousDate = state.selectedDate;
+      rawData = payload;
+      positionsByDate = rawData.snapshots || {};
+      series = rawData.series || [];
+      dateLabels = new Map((rawData.series || []).map((item) => [item.date, item.label]));
+      state.selectedDate = rawData.dates.includes(previousDate) ? previousDate : (rawData.latestDate || null);
+      syncFilterState();
+      renderHeroMeta();
+      renderTypeFilterSummary();
+      renderTypeFilterModal();
+      renderSelector();
+      renderAll();
+    }
+
+    function setStatus(message, tone = "") {
+      const refreshStatus = document.getElementById("refreshStatus");
+      refreshStatus.textContent = message;
+      refreshStatus.className = `sync-status${tone ? ` sync-${tone}` : ""}`;
+    }
+
+    function setButtonState(disabled) {
+      document.getElementById("refreshDataButton").disabled = disabled;
+    }
+
+    function isRemoteRuntime() {
+      return window.location.protocol !== "file:";
+    }
+
+    async function syncPortfolio() {
+      if (!isRemoteRuntime()) {
+        setButtonState(true);
+        setStatus("Este HTML necesita Vercel o vercel dev para leer la Google Sheet.");
+        return;
+      }
+
+      setButtonState(true);
+      setStatus("Actualizando desde Google Sheets...", "loading");
+      try {
+        const response = await fetch(`/api/portfolio?ts=${Date.now()}`, {
+          cache: "no-store",
+          headers: { Accept: "application/json" },
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(errorText || `HTTP ${response.status}`);
+        }
+
+        const payload = await response.json();
+        applyPayload(payload);
+        setStatus(`Datos cargados · ${payload.generatedAt}`, "success");
+      } catch (error) {
+        console.error(error);
+        setStatus("No se pudo leer la Google Sheet privada.", "error");
+      } finally {
+        setButtonState(false);
+      }
+    }
+
+    function renderAll() {
+      renderHeroMeta();
+      renderTypeFilterSummary();
+      renderTypeFilterModal();
+      renderPerformanceAssetFilterSummary();
+      renderPerformanceAssetModal();
+      renderAllocationRangeSelector();
+      renderPerformanceRangeSelector();
+      renderKpis();
+      renderTimeline();
+      renderInsights();
+      renderAllocation();
+      renderAllocationTrend();
+      renderTopPositions();
+      renderPerformanceBlock();
+      renderContributionPlanBlock();
+      renderComparison();
+      renderTable();
+      applyPanelHeadingTheme();
+    }
+
+    document.getElementById("snapshotSelect").addEventListener("change", (event) => {
+      state.selectedDate = event.target.value;
+      renderAll();
+    });
+    document.getElementById("compareLeftSelect").addEventListener("change", (event) => {
+      state.compareLeftDate = event.target.value;
+      renderComparison();
+    });
+    document.getElementById("compareRightSelect").addEventListener("change", (event) => {
+      state.compareRightDate = event.target.value;
+      renderComparison();
+    });
+    document.getElementById("allocationRangeSelect").addEventListener("change", (event) => {
+      state.allocationRangeMonths = event.target.value === "all" ? null : Number(event.target.value);
+      renderAllocationTrend();
+    });
+    document.getElementById("performanceRangeSelect").addEventListener("change", (event) => {
+      state.performanceRangeMonths = event.target.value === "all" ? null : Number(event.target.value);
+      renderPerformanceBlock();
+    });
+    document.getElementById("refreshDataButton").addEventListener("click", () => syncPortfolio());
+
+    applyTheme(document.documentElement.dataset.theme || "dark");
+    syncFilterState();
+    renderHeroMeta();
+    renderTypeFilterSummary();
+    renderTypeFilterModal();
+    renderPerformanceAssetFilterSummary();
+    renderPerformanceAssetModal();
+    renderSelector();
+    attachThemeToggle();
+    attachChartModeToggle();
+    attachAllocationChartToggle();
+    attachTypeFilterModal();
+    attachPerformanceAssetModal();
+    attachAssetFilters();
+    attachAllocationTooltip();
+    attachAllocationTrendTooltip();
+    attachPerformanceTooltip();
+    attachContributionTooltip();
+    attachTimelineTooltip();
+    renderAll();
+
+    if (isRemoteRuntime()) {
+      setStatus("Conectando con Google Sheets...", "loading");
+      syncPortfolio();
+    } else {
+      setStatus("Sin datos embebidos. Usa Vercel o vercel dev para conectar la hoja.");
+      setButtonState(true);
+    }
+  </script>
+</body>
+</html>
