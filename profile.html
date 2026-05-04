@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DMB Capital · Mi Perfil</title>
+  <link rel="stylesheet" href="profile_page.css">
+</head>
+<body>
+  <main class="page-shell">
+    <header class="page-header">
+      <div class="page-title">
+        <div>
+          <h1>Mi Perfil</h1>
+          <p id="statusMessage">Esperando datos de perfil.</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="theme-toggle" id="privacyToggleButton" type="button" aria-pressed="false" title="Ocultar cifras sensibles">
+          <span class="theme-icon">👁</span>
+          <span class="theme-label" id="privacyToggleLabel">Ocultar cifras</span>
+        </button>
+        <button class="theme-toggle" id="themeToggleButton" type="button" aria-pressed="false" title="Cambiar tema">
+          <span class="theme-icon" id="themeToggleIcon">☾</span>
+          <span class="theme-label" id="themeToggleLabel">Modo oscuro</span>
+        </button>
+        <a class="theme-toggle" href="/" title="Volver al dashboard principal">
+          <span class="theme-icon">←</span>
+          <span class="theme-label">Dashboard</span>
+        </a>
+      </div>
+    </header>
+
+    <section class="profile-hero">
+      <div class="profile-avatar" id="profileAvatar"><span>DMB</span></div>
+      <h2 id="profileName">Denis Martín Barroso</h2>
+      <p id="profileSubtitle">Ingresos y evolución salarial</p>
+    </section>
+
+    <section class="profile-body" id="profileContent">
+      <div class="status-empty">Cargando datos de perfil...</div>
+    </section>
+  </main>
+
+  <script src="profile_page.js"></script>
+</body>
+</html>

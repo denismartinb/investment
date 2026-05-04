@@ -3,6 +3,7 @@ const path = require("node:path");
 const http = require("node:http");
 const portfolioHandler = require("./api/portfolio");
 const dashboardHandler = require("./api/dashboard");
+const profileHandler = require("./api/profile");
 const loginHandler = require("./api/auth/login");
 const logoutHandler = require("./api/auth/logout");
 
@@ -54,6 +55,11 @@ const server = http.createServer(async (req, res) => {
 
   if (url.pathname === "/" || url.pathname === "/investment_dashboard.html") {
     await dashboardHandler(req, res);
+    return;
+  }
+
+  if (url.pathname === "/profile" || url.pathname === "/profile.html") {
+    await profileHandler(req, res);
     return;
   }
 

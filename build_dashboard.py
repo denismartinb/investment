@@ -2440,12 +2440,12 @@ def render_html() -> str:
               <span class="theme-icon">⇥</span>
               <span class="theme-label">Salir</span>
             </button>
-            <button class="theme-toggle profile-toggle" id="openProfileButton" type="button" title="Abrir Mi Perfil" aria-label="Abrir Mi Perfil">
+            <a class="theme-toggle profile-toggle" href="/profile" title="Abrir Mi Perfil" aria-label="Abrir Mi Perfil">
               <span class="profile-avatar-thumb has-image">
                 <img src="assets/profile-photo.png" alt="Foto de Denis Martín Barroso">
                 <span>DMB</span>
               </span>
-            </button>
+            </a>
           </div>
           <aside class="control-card">
             <h2>Exploración</h2>
@@ -5271,7 +5271,6 @@ def render_html() -> str:
       setButtonState(true);
     }}
   </script>
-  <script src="profile_web.js"></script>
 </body>
 </html>
 """

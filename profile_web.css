@@ -276,6 +276,86 @@ html[data-theme="light"] .profile-summary-table tbody tr:nth-child(odd) {
   }
 
   .profile-modal-card {
-    padding: 20px;
+    width: min(100vw - 16px, 100%);
+    max-height: calc(100vh - 16px);
+    padding: 16px;
+    border-radius: 22px;
+  }
+
+  .profile-panel {
+    padding: 14px;
+    border-radius: 18px;
+  }
+
+  .profile-chart-shell {
+    margin-top: 14px;
+  }
+
+  .profile-summary-shell {
+    margin-left: -2px;
+    margin-right: -2px;
+  }
+
+  .profile-summary-table {
+    min-width: 680px;
+  }
+}
+
+@media (max-width: 640px) {
+  .profile-modal-card {
+    width: calc(100vw - 10px);
+    max-height: calc(100vh - 10px);
+    padding: 14px;
+    border-radius: 20px;
+  }
+
+  .profile-modal-head {
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  .profile-title-block h2 {
+    font-size: 24px;
+  }
+
+  .profile-title-block p,
+  .profile-hero p,
+  .profile-panel p {
+    font-size: 12px;
+  }
+
+  .profile-hero {
+    gap: 8px;
+    padding: 4px 4px 0;
+  }
+
+  .profile-avatar-large {
+    width: 82px;
+    height: 82px;
+  }
+
+  .profile-hero h3 {
+    font-size: 22px;
+  }
+
+  .profile-grid,
+  .profile-body {
+    gap: 14px;
+  }
+
+  .profile-panel h3 {
+    font-size: 19px;
+  }
+
+  .profile-chart-shell svg {
+    min-height: 300px;
+  }
+
+  .profile-summary-table {
+    min-width: 620px;
+  }
+
+  .profile-chart-tooltip {
+    max-width: calc(100% - 16px);
   }
 }
