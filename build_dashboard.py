@@ -2405,6 +2405,7 @@ def render_html() -> str:
       opacity: 1 !important;
     }}
   </style>
+  <link rel="stylesheet" href="profile_web.css">
 </head>
 <body>
   <div class="shell">
@@ -2438,6 +2439,12 @@ def render_html() -> str:
             <button class="theme-toggle" id="logoutButton" type="button" title="Cerrar sesión">
               <span class="theme-icon">⇥</span>
               <span class="theme-label">Salir</span>
+            </button>
+            <button class="theme-toggle profile-toggle" id="openProfileButton" type="button" title="Abrir Mi Perfil" aria-label="Abrir Mi Perfil">
+              <span class="profile-avatar-thumb has-image">
+                <img src="assets/profile-photo.png" alt="Foto de Denis Martín Barroso">
+                <span>DMB</span>
+              </span>
             </button>
           </div>
           <aside class="control-card">
@@ -2759,6 +2766,22 @@ def render_html() -> str:
       <div class="modal-actions">
         <div class="filter-meta" id="performanceAssetDraftMeta">-</div>
       </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="profileModal" aria-hidden="true">
+    <div class="modal-card profile-modal-card" role="dialog" aria-modal="true" aria-labelledby="profileModalTitle">
+      <div class="modal-head profile-modal-head">
+        <div class="profile-title-block">
+          <h2 id="profileModalTitle">Mi Perfil</h2>
+          <p>Perfil profesional, ingresos y evolución salarial.</p>
+        </div>
+        <button class="theme-toggle" id="closeProfileButton" type="button" title="Cerrar perfil">
+          <span class="theme-icon">✕</span>
+          <span class="theme-label">Cerrar</span>
+        </button>
+      </div>
+      <div id="profileModalBody"></div>
     </div>
   </div>
 
@@ -5248,6 +5271,7 @@ def render_html() -> str:
       setButtonState(true);
     }}
   </script>
+  <script src="profile_web.js"></script>
 </body>
 </html>
 """

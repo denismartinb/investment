@@ -2281,6 +2281,7 @@
       opacity: 1 !important;
     }
   </style>
+  <link rel="stylesheet" href="profile_web.css">
 </head>
 <body>
   <div class="shell">
@@ -2314,6 +2315,12 @@
             <button class="theme-toggle" id="logoutButton" type="button" title="Cerrar sesión">
               <span class="theme-icon">⇥</span>
               <span class="theme-label">Salir</span>
+            </button>
+            <button class="theme-toggle profile-toggle" id="openProfileButton" type="button" title="Abrir Mi Perfil" aria-label="Abrir Mi Perfil">
+              <span class="profile-avatar-thumb has-image">
+                <img src="assets/profile-photo.png" alt="Foto de Denis Martín Barroso">
+                <span>DMB</span>
+              </span>
             </button>
           </div>
           <aside class="control-card">
@@ -2638,7 +2645,23 @@
     </div>
   </div>
 
-  <script id="portfolio-data" type="application/json">{"generatedAt":"2026-05-02 23:30","sourceFile":"Google Sheets · Data","series":[],"snapshots":{},"dates":[],"latestDate":null,"latestPositions":[],"contributionPlan":{"yearLabel":null,"months":[],"assets":[],"totalMonthly":0,"totalAnnual":0,"totalMonthlyEquity":0,"totalMonthlyFixedIncome":0,"averageMonthly":0,"assetCount":0,"error":null}}</script>
+  <div class="modal-backdrop" id="profileModal" aria-hidden="true">
+    <div class="modal-card profile-modal-card" role="dialog" aria-modal="true" aria-labelledby="profileModalTitle">
+      <div class="modal-head profile-modal-head">
+        <div class="profile-title-block">
+          <h2 id="profileModalTitle">Mi Perfil</h2>
+          <p>Perfil profesional, ingresos y evolución salarial.</p>
+        </div>
+        <button class="theme-toggle" id="closeProfileButton" type="button" title="Cerrar perfil">
+          <span class="theme-icon">✕</span>
+          <span class="theme-label">Cerrar</span>
+        </button>
+      </div>
+      <div id="profileModalBody"></div>
+    </div>
+  </div>
+
+  <script id="portfolio-data" type="application/json">{"generatedAt":"2026-05-04 18:27","sourceFile":"Google Sheets · Data","series":[],"snapshots":{},"dates":[],"latestDate":null,"latestPositions":[],"contributionPlan":{"yearLabel":null,"months":[],"assets":[],"totalMonthly":0,"totalAnnual":0,"totalMonthlyEquity":0,"totalMonthlyFixedIncome":0,"averageMonthly":0,"assetCount":0,"error":null}}</script>
   <script>
     let rawData = JSON.parse(document.getElementById("portfolio-data").textContent);
     const state = {
@@ -5124,5 +5147,6 @@
       setButtonState(true);
     }
   </script>
+  <script src="profile_web.js"></script>
 </body>
 </html>

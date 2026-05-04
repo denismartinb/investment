@@ -115,6 +115,89 @@ function emptyContributionPlan(error = null) {
   };
 }
 
+function emptyProfilePayload(error = null) {
+  return {
+    fullName: "Denis Martín Barroso",
+    salaryEvolution: [],
+    totalIncomeAnnual: [],
+    error,
+  };
+}
+
+function findHeaderIndex(headers, aliases) {
+  return headers.findIndex((header) => aliases.includes(normalizeText(header)));
+}
+
+function parseProfileIncome(values) {
+  if (!values || values.length < 2) {
+    return [];
+  }
+
+  const headers = values[0].map((header) => String(header || "").trim());
+  const yearIndex = findHeaderIndex(headers, ["ano", "año", "year"]);
+  const incomeIndex = findHeaderIndex(headers, ["ingresos totales", "ingresos", "total ingresos", "total"]);
+
+  if (yearIndex === -1 || incomeIndex === -1) {
+    throw new Error("La pestaña Evolucion ingresos no contiene columnas reconocibles de año e ingresos totales.");
+  }
+
+  return values
+    .slice(1)
+    .filter((row) => row.some((cell) => String(cell || "").trim() !== ""))
+    .map((row) => ({
+      year: Number(String(row[yearIndex] || "").trim()),
+      totalIncome: parseDecimal(row[incomeIndex]),
+    }))
+    .filter((point) => Number.isFinite(point.year) && point.year > 0 && Number.isFinite(point.totalIncome))
+    .sort((left, right) => left.year - right.year);
+}
+
+function parseProfileSalary(values) {
+  if (!values || values.length < 2) {
+    return [];
+  }
+
+  const headers = values[0].map((header) => String(header || "").trim());
+  const yearIndex = findHeaderIndex(headers, ["ano", "año", "year"]);
+  const grossSalaryIndex = findHeaderIndex(headers, ["salario bruto", "salario", "gross salary"]);
+  const bonusIndex = findHeaderIndex(headers, ["bonus", "variable"]);
+  const topPerformerIndex = findHeaderIndex(headers, ["top performer"]);
+  const totalIndex = findHeaderIndex(headers, ["total", "compensacion total", "compensación total"]);
+
+  if (yearIndex === -1 || (grossSalaryIndex === -1 && totalIndex === -1)) {
+    throw new Error("La pestaña Evolucion salario no contiene columnas reconocibles de año y salario.");
+  }
+
+  return values
+    .slice(1)
+    .filter((row) => row.some((cell) => String(cell || "").trim() !== ""))
+    .map((row) => {
+      const grossSalary = grossSalaryIndex >= 0 ? parseDecimal(row[grossSalaryIndex]) : 0;
+      const bonus = bonusIndex >= 0 ? parseDecimal(row[bonusIndex]) : 0;
+      const topPerformer = topPerformerIndex >= 0 ? parseDecimal(row[topPerformerIndex]) : 0;
+      const total = totalIndex >= 0 ? parseDecimal(row[totalIndex]) : 0;
+      const computedTotal = total || grossSalary + bonus + topPerformer || grossSalary;
+      return {
+        year: Number(String(row[yearIndex] || "").trim()),
+        grossSalary,
+        bonus,
+        topPerformer,
+        salary: computedTotal,
+      };
+    })
+    .filter((point) => Number.isFinite(point.year) && point.year > 0 && Number.isFinite(point.salary))
+    .sort((left, right) => left.year - right.year);
+}
+
+function parseProfilePayload(incomeValues, salaryValues) {
+  return {
+    fullName: "Denis Martín Barroso",
+    totalIncomeAnnual: parseProfileIncome(incomeValues),
+    salaryEvolution: parseProfileSalary(salaryValues),
+    error: null,
+  };
+}
+
 function getPlanMonthMeta(header) {
   const normalized = normalizeText(header);
   if (!normalized) {
@@ -228,7 +311,7 @@ function parseContributionPlan(values) {
   };
 }
 
-function buildPayload(rows, sourceFile, contributionPlan = emptyContributionPlan()) {
+function buildPayload(rows, sourceFile, contributionPlan = emptyContributionPlan(), profile = emptyProfilePayload()) {
   const snapshots = {};
 
   for (const row of rows) {
@@ -268,6 +351,7 @@ function buildPayload(rows, sourceFile, contributionPlan = emptyContributionPlan
     latestDate,
     latestPositions,
     contributionPlan,
+    profile,
   };
 }
 
@@ -346,6 +430,10 @@ function getConfig() {
     range: process.env.GOOGLE_SHEETS_RANGE || process.env.GOOGLE_SHEETS_SHEET_NAME,
     planSheetName: process.env.GOOGLE_SHEETS_PLAN_SHEET_NAME || "Plan aportaciones",
     planRange: process.env.GOOGLE_SHEETS_PLAN_RANGE || "'Plan aportaciones'!A:ZZ",
+    profileIncomeSheetName: process.env.GOOGLE_SHEETS_PROFILE_INCOME_SHEET_NAME || "Evolucion ingresos",
+    profileIncomeRange: process.env.GOOGLE_SHEETS_PROFILE_INCOME_RANGE || "'Evolucion ingresos'!A:Z",
+    profileSalarySheetName: process.env.GOOGLE_SHEETS_PROFILE_SALARY_SHEET_NAME || "Evolucion salario",
+    profileSalaryRange: process.env.GOOGLE_SHEETS_PROFILE_SALARY_RANGE || "'Evolucion salario'!A:Z",
     clientEmail: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
     privateKey: process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY?.replace(/\\n/g, "\n"),
   };
@@ -452,7 +540,24 @@ async function getPortfolioPayload() {
     contributionPlan = emptyContributionPlan(error.message);
   }
 
-  return buildPayload(normalized, sourceFile, contributionPlan);
+  let profile = emptyProfilePayload();
+  try {
+    const [incomeSheet, salarySheet] = await Promise.all([
+      getSheetValues(
+        { spreadsheetId: config.spreadsheetId, range: config.profileIncomeRange, sheetName: config.profileIncomeSheetName },
+        accessToken,
+      ),
+      getSheetValues(
+        { spreadsheetId: config.spreadsheetId, range: config.profileSalaryRange, sheetName: config.profileSalarySheetName },
+        accessToken,
+      ),
+    ]);
+    profile = parseProfilePayload(incomeSheet.values, salarySheet.values);
+  } catch (error) {
+    profile = emptyProfilePayload(error.message);
+  }
+
+  return buildPayload(normalized, sourceFile, contributionPlan, profile);
 }
 
 async function handler(req, res) {
