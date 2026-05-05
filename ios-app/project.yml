@@ -1,0 +1,24 @@
+name: InvestmentDashboardApp
+options:
+  minimumXcodeGenVersion: 2.38.0
+targets:
+  InvestmentDashboardApp:
+    type: application
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - InvestmentDashboardApp
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.denismartinb.dmbcapital
+        PRODUCT_NAME: InvestmentDashboardApp
+        SWIFT_VERSION: 5.10
+        INFOPLIST_FILE: InvestmentDashboardApp/Info.plist
+        INFOPLIST_KEY_CFBundleDisplayName: DMB Capital
+        INFOPLIST_KEY_UIApplicationSceneManifest_Generation: true
+        INFOPLIST_KEY_UIStatusBarStyle: UIStatusBarStyleLightContent
+        INFOPLIST_KEY_UILaunchScreen_Generation: true
+        INFOPLIST_KEY_NSAppTransportSecurity_NSAllowsArbitraryLoads: true
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        DEVELOPMENT_TEAM: "HHQCRS8BT2"
+        CODE_SIGN_STYLE: Automatic
