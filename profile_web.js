@@ -23,13 +23,12 @@
       .sort((a, b) => a.year - b.year);
 
     const maxIncomeYear = incomePoints.reduce((max, item) => Math.max(max, item.year), 0);
-    const visibleMaxYear = maxIncomeYear || salaryPoints.reduce((max, item) => Math.max(max, item.year), 0);
 
     return {
       fullName: profile.fullName || 'Denis Martín Barroso',
       error: profile.error || null,
-      incomePoints: incomePoints.filter((item) => item.year <= visibleMaxYear),
-      salaryPoints: salaryPoints.filter((item) => item.year <= visibleMaxYear),
+      incomePoints: maxIncomeYear ? incomePoints.filter((item) => item.year <= maxIncomeYear) : incomePoints,
+      salaryPoints,
     };
   }
 
