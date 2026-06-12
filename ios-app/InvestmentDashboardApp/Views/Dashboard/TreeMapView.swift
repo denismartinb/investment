@@ -11,6 +11,9 @@ struct TreeMapItem: Identifiable, Hashable {
 struct TreeMapView: View {
     let items: [TreeMapItem]
     @State private var selectedTitle: String?
+    @State private var cachedSize: CGSize = .zero
+    @State private var cachedSignature: Int = 0
+    @State private var cachedLayout: [TreeMapNode] = []
 
     private var selectedItem: TreeMapItem? {
         guard let selectedTitle else { return nil }
@@ -19,7 +22,9 @@ struct TreeMapView: View {
 
     var body: some View {
         GeometryReader { proxy in
-            let layout = TreeMapLayout.layout(items: items, in: proxy.size)
+            let size = proxy.size
+            let layout = resolvedLayout(for: size)
+
             ZStack(alignment: .topLeading) {
                 Color.clear
                     .contentShape(Rectangle())
@@ -60,10 +65,41 @@ struct TreeMapView: View {
                     .transition(.opacity)
                 }
             }
+            .task(id: layoutKey(for: size)) {
+                refreshLayoutIfNeeded(for: size)
+            }
         }
         .onReceive(NotificationCenter.default.publisher(for: DashboardTooltipDismissal.notification)) { _ in
             selectedTitle = nil
         }
+    }
+
+    private func layoutKey(for size: CGSize) -> Int {
+        var hasher = Hasher()
+        hasher.combine(Int(size.width.rounded()))
+        hasher.combine(Int(size.height.rounded()))
+        for item in items {
+            hasher.combine(item.title)
+            hasher.combine(item.value.bitPattern)
+            hasher.combine(item.share.bitPattern)
+        }
+        return hasher.finalize()
+    }
+
+    private func refreshLayoutIfNeeded(for size: CGSize) {
+        let signature = layoutKey(for: size)
+        guard signature != cachedSignature || cachedLayout.isEmpty else { return }
+        cachedSize = size
+        cachedSignature = signature
+        cachedLayout = TreeMapLayout.layout(items: items, in: size)
+    }
+
+    private func resolvedLayout(for size: CGSize) -> [TreeMapNode] {
+        let signature = layoutKey(for: size)
+        if signature == cachedSignature, !cachedLayout.isEmpty {
+            return cachedLayout
+        }
+        return TreeMapLayout.layout(items: items, in: size)
     }
 }
 
@@ -100,7 +136,7 @@ private struct TreeMapNodeView: View {
             }
         }
         .clipped()
-        .shadow(color: .black.opacity(isSelected ? 0.16 : 0), radius: 10, y: 4)
+        .shadow(color: .black.opacity(isSelected ? 0.10 : 0), radius: 6, y: 3)
     }
 }
 

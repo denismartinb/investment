@@ -7,26 +7,25 @@ struct ProfileView: View {
     @AppStorage("dashboardHideSensitive") private var hideSensitiveValues = false
 
     private var profile: ProfilePayload { appViewModel.profile }
-    private var visibleMaxYear: Int {
+    private var incomeVisibleMaxYear: Int {
         let incomeMax = (profile.totalIncomeAnnual ?? []).map(\.year).max() ?? Int.max
         return min(incomeMax, 2025)
     }
 
     private var incomePoints: [ProfileAnnualIncomePoint] {
         (profile.totalIncomeAnnual ?? [])
-            .filter { $0.year <= visibleMaxYear }
+            .filter { $0.year <= incomeVisibleMaxYear }
             .sorted { $0.year < $1.year }
     }
 
     private var salaryPoints: [ProfileSalaryPoint] {
         (profile.salaryEvolution ?? [])
-            .filter { $0.year <= visibleMaxYear }
             .sorted { $0.year < $1.year }
     }
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 24) {
+            LazyVStack(alignment: .leading, spacing: 24) {
                 headerCard
                 incomeCard
                 salaryCard

@@ -29,7 +29,7 @@ struct DashboardSummaryView: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 24) {
+            LazyVStack(alignment: .leading, spacing: 24) {
                 hero
                 summaryGrid
                 trajectoryCard
@@ -45,14 +45,6 @@ struct DashboardSummaryView: View {
         }
         .navigationTitle("Resumen")
         .toolbar { toolbarContent }
-        .sheet(isPresented: $appViewModel.isTypeFilterPresented) {
-            TypeFilterSheetView().environmentObject(appViewModel)
-        }
-        .sheet(isPresented: $appViewModel.isProfilePresented) {
-            NavigationStack {
-                ProfileView().environmentObject(appViewModel)
-            }
-        }
     }
 
     private var hero: some View {

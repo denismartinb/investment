@@ -41,5 +41,13 @@ struct DashboardTabView: View {
             }
         }
         .tint(AppTheme.textPrimary)
+        .sheet(isPresented: $appViewModel.isTypeFilterPresented) {
+            TypeFilterSheetView().environmentObject(appViewModel)
+        }
+        .sheet(isPresented: $appViewModel.isProfilePresented) {
+            NavigationStack {
+                ProfileView().environmentObject(appViewModel)
+            }
+        }
     }
 }

@@ -6,7 +6,7 @@ struct ContributionPlanView: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 24) {
+            LazyVStack(alignment: .leading, spacing: 24) {
                 if let plan = appViewModel.contributionPlan {
                     summaryCard(plan: plan)
                     monthlyContributionCard(plan: plan)

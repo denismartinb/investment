@@ -78,7 +78,7 @@ struct PremiumPanel<Content: View>: View {
             .padding(20)
             .background(RoundedRectangle(cornerRadius: 28, style: .continuous).fill(AppTheme.panelBackground(highlight: highlight)))
             .overlay(RoundedRectangle(cornerRadius: 28, style: .continuous).stroke(AppTheme.panelBorder, lineWidth: 1))
-            .shadow(color: .black.opacity(0.12), radius: 20, y: 10)
+            .shadow(color: .black.opacity(0.08), radius: 10, y: 4)
     }
 }
 

@@ -23,7 +23,7 @@ struct PortfolioSeriesPoint: Decodable, Identifiable {
 
 
 
-struct ProfilePayload: Decodable {
+struct ProfilePayload: Decodable, Equatable {
     let fullName: String?
     let salaryEvolution: [ProfileSalaryPoint]?
     let totalIncomeAnnual: [ProfileAnnualIncomePoint]?
@@ -68,7 +68,7 @@ struct ProfileAnnualIncomePoint: Decodable, Identifiable, Hashable {
     let totalIncome: Double
 }
 
-struct ContributionPlanPayload: Decodable {
+struct ContributionPlanPayload: Decodable, Equatable {
     let assets: [ContributionPlanAsset]
     let totalMonthly: Double
     let totalAnnual: Double

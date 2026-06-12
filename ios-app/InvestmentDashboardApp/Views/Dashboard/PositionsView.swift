@@ -17,7 +17,7 @@ struct PositionsView: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 24) {
+            LazyVStack(alignment: .leading, spacing: 24) {
                 searchCard
                 positionsCard
             }

@@ -6,7 +6,7 @@ struct PerformanceView: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 24) {
+            LazyVStack(alignment: .leading, spacing: 24) {
                 overviewCard
                 assetProfitHistoryCard
                 currentTypePerformanceCard
@@ -19,9 +19,6 @@ struct PerformanceView: View {
             DashboardTooltipDismissal.post()
         }
         .navigationTitle("Rentabilidad")
-        .sheet(isPresented: $appViewModel.isTypeFilterPresented) {
-            TypeFilterSheetView().environmentObject(appViewModel)
-        }
     }
 
     private var overviewCard: some View {
@@ -350,8 +347,8 @@ private struct AssetProfitHistoryChartCard: View {
                 GeometryReader { geometry in
                     ZStack(alignment: .topLeading) {
                         Rectangle().fill(.clear).contentShape(Rectangle())
-                            .gesture(
-                                DragGesture(minimumDistance: 0)
+                            .simultaneousGesture(
+                                SpatialTapGesture()
                                     .onEnded { gesture in
                                         let frame = geometry[proxy.plotAreaFrame]
                                         let locationX = gesture.location.x - frame.origin.x

@@ -5,7 +5,7 @@ struct AllocationView: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 24) {
+            LazyVStack(alignment: .leading, spacing: 24) {
                 treeMapCard
                 historicalAllocationCard
                 typeListCard
@@ -25,6 +25,7 @@ struct AllocationView: View {
             SectionHeader(title: "Asignación por tipo", subtitle: "Peso actual de cada familia dentro del patrimonio bruto.")
             TreeMapView(items: appViewModel.allocations.map { TreeMapItem(title: $0.type, value: $0.value, share: $0.share, color: AppTheme.color(for: $0.type)) })
                 .frame(height: 338)
+                .drawingGroup(opaque: false, colorMode: .linear)
         }
     }
 
@@ -34,6 +35,7 @@ struct AllocationView: View {
             periodSelector
             SnapshotStackedBarsView(points: appViewModel.allocationHistory)
                 .frame(height: 260)
+                .drawingGroup(opaque: false, colorMode: .linear)
             ChartLegendRow(items: appViewModel.allocations.map { ($0.type, AppTheme.color(for: $0.type)) })
         }
     }
