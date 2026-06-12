@@ -49,10 +49,40 @@ function formatDisplayDate(date) {
 
 function normalizeText(value) {
   return String(value || "")
+    .replace(/\u00a0/g, " ")
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\s+/g, " ")
     .toLowerCase()
     .trim();
+}
+
+function normalizeInvestmentType(rawType, rawName = "") {
+  const normalizedType = normalizeText(rawType);
+  const normalizedName = normalizeText(rawName);
+
+  const liquidityTypeAliases = new Set([
+    "cuentas corrientes",
+    "cuenta corriente",
+    "cuenta remunerada",
+    "efectivo",
+    "liquidez",
+    "cash",
+  ]);
+
+  const liquidityAccountAliases = new Set([
+    "trade republic",
+  ]);
+
+  if (liquidityTypeAliases.has(normalizedType)) {
+    return "Cuentas Corrientes";
+  }
+
+  if (!normalizedType && liquidityAccountAliases.has(normalizedName)) {
+    return "Cuentas Corrientes";
+  }
+
+  return String(rawType || "").replace(/\u00a0/g, " ").replace(/\s+/g, " ").trim();
 }
 
 function parseSnapshotDate(value) {
@@ -88,7 +118,7 @@ function normalizeRows(rows) {
         name: (raw["Nombre"] || "").trim(),
         date: date.toISOString().slice(0, 10),
         dateLabel: formatDisplayDate(date),
-        type: (raw["Tipo Inversión"] || "").trim(),
+        type: normalizeInvestmentType(raw["Tipo Inversión"], raw["Nombre"]),
         shares: parseDecimal(raw["Participaciones"]),
         unitPrice: parseDecimal(raw["Precio Participación"]),
         value: parseDecimal(raw["Valor"]),

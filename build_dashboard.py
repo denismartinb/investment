@@ -31,6 +31,40 @@ def format_display_date(date: datetime) -> str:
     return f"{date.day:02d} {months[date.month - 1]} {date.year}"
 
 
+def normalize_text(value: str) -> str:
+    return " ".join(
+        (value or "")
+        .replace("\xa0", " ")
+        .strip()
+        .lower()
+        .split()
+    )
+
+
+def normalize_investment_type(raw_type: str, raw_name: str = "") -> str:
+    normalized_type = normalize_text(raw_type)
+    normalized_name = normalize_text(raw_name)
+    liquidity_type_aliases = {
+        "cuentas corrientes",
+        "cuenta corriente",
+        "cuenta remunerada",
+        "efectivo",
+        "liquidez",
+        "cash",
+    }
+    liquidity_account_aliases = {
+        "trade republic",
+    }
+
+    if normalized_type in liquidity_type_aliases:
+        return "Cuentas Corrientes"
+
+    if not normalized_type and normalized_name in liquidity_account_aliases:
+        return "Cuentas Corrientes"
+
+    return " ".join((raw_type or "").replace("\xa0", " ").strip().split())
+
+
 def load_rows() -> list[dict]:
     rows: list[dict] = []
     with INPUT_CSV.open("r", encoding="utf-8-sig", newline="") as handle:
@@ -43,7 +77,7 @@ def load_rows() -> list[dict]:
                 "name": raw["Nombre"].strip(),
                 "date": date.strftime("%Y-%m-%d"),
                 "dateLabel": format_display_date(date),
-                "type": raw["Tipo Inversión"].strip(),
+                "type": normalize_investment_type(raw["Tipo Inversión"], raw["Nombre"]),
                 "shares": parse_decimal(raw["Participaciones"]),
                 "unitPrice": parse_decimal(raw["Precio Participación"]),
                 "value": parse_decimal(raw["Valor"]),
